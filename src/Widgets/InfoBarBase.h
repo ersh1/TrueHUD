@@ -49,6 +49,7 @@ namespace Scaleform
 		virtual void SetWidgetState(WidgetStateMode a_state);
 		virtual void FlashActorValue(RE::ActorValue a_actorValue, bool a_bLong);
 		virtual void FlashSpecial(bool a_bLong);
+		virtual void RefreshColors();
 
 		RE::ObjectRefHandle _refHandle;
 

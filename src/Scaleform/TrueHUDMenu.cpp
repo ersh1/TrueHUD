@@ -295,88 +295,6 @@ namespace Scaleform
 		return false;
 	}
 
-	void TrueHUDMenu::OverridePlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color)
-	{
-		_playerWidgetOverriddenColors[a_playerWidgetBarType][a_colorType] = a_color;
-	}
-
-	void TrueHUDMenu::RevertPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType)
-	{
-		if (_playerWidgetOverriddenColors.contains(a_playerWidgetBarType)) {
-			_playerWidgetOverriddenColors[a_playerWidgetBarType].erase(a_colorType);
-		}
-	}
-
-	uint32_t TrueHUDMenu::GetPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType) const
-	{
-		auto it = _playerWidgetOverriddenColors.find(a_playerWidgetBarType);
-		if (it != _playerWidgetOverriddenColors.end()) {
-			auto& colors = it->second;
-			auto iter = colors.find(a_colorType);
-			if (iter != colors.end()) {
-				return iter->second;
-			}
-		}
-
-		// no override found, return defaults
-		switch (a_playerWidgetBarType) {
-		case PlayerWidgetBarType::HealthBar:
-			switch (a_colorType) {
-			case PlayerWidgetBarColorType::BarColor:
-				return Settings::uHealthColor;
-			case PlayerWidgetBarColorType::PhantomColor:
-				return Settings::uHealthPhantomColor;
-			case PlayerWidgetBarColorType::BackgroundColor:
-				return Settings::uHealthBackgroundColor;
-			case PlayerWidgetBarColorType::PenaltyColor:
-				return Settings::uHealthPenaltyColor;
-			case PlayerWidgetBarColorType::FlashColor:
-				return Settings::uHealthFlashColor;
-			}
-		case PlayerWidgetBarType::MagickaBar:
-			switch (a_colorType) {
-			case PlayerWidgetBarColorType::BarColor:
-				return Settings::uMagickaColor;
-			case PlayerWidgetBarColorType::PhantomColor:
-				return Settings::uMagickaPhantomColor;
-			case PlayerWidgetBarColorType::BackgroundColor:
-				return Settings::uMagickaBackgroundColor;
-			case PlayerWidgetBarColorType::PenaltyColor:
-				return Settings::uMagickaPenaltyColor;
-			case PlayerWidgetBarColorType::FlashColor:
-				return Settings::uMagickaFlashColor;
-			}
-		case PlayerWidgetBarType::StaminaBar:
-			switch (a_colorType) {
-			case PlayerWidgetBarColorType::BarColor:
-				return Settings::uStaminaColor;
-			case PlayerWidgetBarColorType::PhantomColor:
-				return Settings::uStaminaPhantomColor;
-			case PlayerWidgetBarColorType::BackgroundColor:
-				return Settings::uStaminaBackgroundColor;
-			case PlayerWidgetBarColorType::PenaltyColor:
-				return Settings::uStaminaPenaltyColor;
-			case PlayerWidgetBarColorType::FlashColor:
-				return Settings::uStaminaFlashColor;
-			}
-		case PlayerWidgetBarType::SpecialBar:
-			switch (a_colorType) {
-			case PlayerWidgetBarColorType::BarColor:
-				return Settings::uSpecialColor;
-			case PlayerWidgetBarColorType::PhantomColor:
-				return Settings::uSpecialPhantomColor;
-			case PlayerWidgetBarColorType::BackgroundColor:
-				return Settings::uSpecialBackgroundColor;
-			case PlayerWidgetBarColorType::PenaltyColor:
-				return Settings::uSpecialPenaltyColor;
-			case PlayerWidgetBarColorType::FlashColor:
-				return Settings::uSpecialFlashColor;
-			}
-		}
-
-		return 0xFFFFFF;
-	}
-
 	void TrueHUDMenu::UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow)
 	{
 		if (_playerWidget) {
@@ -602,6 +520,200 @@ namespace Scaleform
 		}
 	}
 
+	void TrueHUDMenu::OverrideBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color)
+	{
+		switch (a_actorValue) {
+		case RE::ActorValue::kHealth:
+			_colorOverrides[a_actorHandle][BarType::kHealth].SetOverride(a_colorType, a_color);
+			break;
+		case RE::ActorValue::kMagicka:
+			_colorOverrides[a_actorHandle][BarType::kMagicka].SetOverride(a_colorType, a_color);
+			break;
+		case RE::ActorValue::kStamina:
+			_colorOverrides[a_actorHandle][BarType::kStamina].SetOverride(a_colorType, a_color);
+			break;
+		}
+
+		_pendingColorChanges.emplace(a_actorHandle);
+	}
+
+	void TrueHUDMenu::OverrideSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color)
+	{
+		_colorOverrides[a_actorHandle][BarType::kSpecial].SetOverride(a_colorType, a_color);
+
+		_pendingColorChanges.emplace(a_actorHandle);
+	}
+
+	void TrueHUDMenu::RevertBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType)
+	{
+		switch (a_actorValue) {
+		case RE::ActorValue::kHealth:
+			_colorOverrides[a_actorHandle][BarType::kHealth].RemoveOverride(a_colorType);
+			if (_colorOverrides[a_actorHandle][BarType::kHealth].IsEmpty()) {
+				_colorOverrides[a_actorHandle].erase(BarType::kHealth);
+				if (_colorOverrides[a_actorHandle].empty()) {
+					_colorOverrides.erase(a_actorHandle);
+				}
+			}
+			break;
+		case RE::ActorValue::kMagicka:
+			_colorOverrides[a_actorHandle][BarType::kMagicka].RemoveOverride(a_colorType);
+			if (_colorOverrides[a_actorHandle][BarType::kMagicka].IsEmpty()) {
+				_colorOverrides[a_actorHandle].erase(BarType::kMagicka);
+				if (_colorOverrides[a_actorHandle].empty()) {
+					_colorOverrides.erase(a_actorHandle);
+				}
+			}
+			break;
+		case RE::ActorValue::kStamina:
+			_colorOverrides[a_actorHandle][BarType::kStamina].RemoveOverride(a_colorType);
+			if (_colorOverrides[a_actorHandle][BarType::kStamina].IsEmpty()) {
+				_colorOverrides[a_actorHandle].erase(BarType::kStamina);
+				if (_colorOverrides[a_actorHandle].empty()) {
+					_colorOverrides.erase(a_actorHandle);
+				}
+			}
+			break;
+		}
+
+		_pendingColorChanges.emplace(a_actorHandle);
+	}
+
+	void TrueHUDMenu::RevertSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType)
+	{
+		_colorOverrides[a_actorHandle][BarType::kSpecial].RemoveOverride(a_colorType);
+		if (_colorOverrides[a_actorHandle][BarType::kSpecial].IsEmpty()) {
+			_colorOverrides[a_actorHandle].erase(BarType::kSpecial);
+			if (_colorOverrides[a_actorHandle].empty()) {
+				_colorOverrides.erase(a_actorHandle);
+			}
+		}
+
+		_pendingColorChanges.emplace(a_actorHandle);
+	}
+
+	uint32_t TrueHUDMenu::GetBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType) const
+	{
+		uint32_t retColor = 0xFFFFFF;
+
+		bool bColorOverrideFound = false;
+
+		BarType barType = BarType::kHealth;
+
+		switch (a_actorValue) {
+		case RE::ActorValue::kHealth:
+			barType = BarType::kHealth;
+			break;
+		case RE::ActorValue::kMagicka:
+			barType = BarType::kMagicka;
+			break;
+		case RE::ActorValue::kStamina:
+			barType = BarType::kStamina;
+			break;
+		}
+		
+		auto it = _colorOverrides.find(a_actorHandle);
+		if (it != _colorOverrides.end()) {
+			auto& bars = it->second;
+			auto iter = bars.find(barType);
+			if (iter != bars.end()) {
+				auto& colors = iter->second;
+				bColorOverrideFound = colors.GetColor(a_colorType, retColor);
+			}
+		}
+
+		if (!bColorOverrideFound) {
+			// no override found, return defaults
+			retColor = GetDefaultColor(barType, a_colorType);
+		}
+
+		return retColor;
+	}
+
+	uint32_t TrueHUDMenu::GetSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType) const
+	{
+		uint32_t retColor = 0xFFFFFF;
+
+		bool bColorOverrideFound = false;
+
+		auto it = _colorOverrides.find(a_actorHandle);
+		if (it != _colorOverrides.end()) {
+			auto& bars = it->second;
+			auto iter = bars.find(BarType::kSpecial);
+			if (iter != bars.end()) {
+				auto& colors = iter->second;
+				bColorOverrideFound = colors.GetColor(a_colorType, retColor);
+			}
+		}
+
+		if (!bColorOverrideFound) {
+			// no override found, return defaults
+			retColor = GetDefaultColor(BarType::kSpecial, a_colorType);
+		}
+
+		return retColor;
+	}
+
+	uint32_t TrueHUDMenu::GetDefaultColor(BarType a_barType, BarColorType a_barColorType) const
+	{
+		switch (a_barType) {
+		case BarType::kHealth:
+			switch (a_barColorType) {
+			case BarColorType::BarColor:
+				return Settings::uHealthColor;
+			case BarColorType::PhantomColor:
+				return Settings::uHealthPhantomColor;
+			case BarColorType::BackgroundColor:
+				return Settings::uHealthBackgroundColor;
+			case BarColorType::PenaltyColor:
+				return Settings::uHealthPenaltyColor;
+			case BarColorType::FlashColor:
+				return Settings::uHealthFlashColor;
+			}
+		case BarType::kMagicka:
+			switch (a_barColorType) {
+			case BarColorType::BarColor:
+				return Settings::uMagickaColor;
+			case BarColorType::PhantomColor:
+				return Settings::uMagickaPhantomColor;
+			case BarColorType::BackgroundColor:
+				return Settings::uMagickaBackgroundColor;
+			case BarColorType::PenaltyColor:
+				return Settings::uMagickaPenaltyColor;
+			case BarColorType::FlashColor:
+				return Settings::uMagickaFlashColor;
+			}
+		case BarType::kStamina:
+			switch (a_barColorType) {
+			case BarColorType::BarColor:
+				return Settings::uStaminaColor;
+			case BarColorType::PhantomColor:
+				return Settings::uStaminaPhantomColor;
+			case BarColorType::BackgroundColor:
+				return Settings::uStaminaBackgroundColor;
+			case BarColorType::PenaltyColor:
+				return Settings::uStaminaPenaltyColor;
+			case BarColorType::FlashColor:
+				return Settings::uStaminaFlashColor;
+			}
+		case BarType::kSpecial:
+			switch (a_barColorType) {
+			case BarColorType::BarColor:
+				return Settings::uSpecialColor;
+			case BarColorType::PhantomColor:
+				return Settings::uSpecialPhantomColor;
+			case BarColorType::BackgroundColor:
+				return Settings::uSpecialBackgroundColor;
+			case BarColorType::PenaltyColor:
+				return Settings::uSpecialPenaltyColor;
+			case BarColorType::FlashColor:
+				return Settings::uSpecialFlashColor;
+			}
+		}
+
+		return 0xFFFFFF;
+	}
+
 	void TrueHUDMenu::ToggleMenu(bool a_enable)
 	{
 		if (_bMenuToggled == a_enable) {
@@ -771,21 +883,27 @@ namespace Scaleform
 		}
 
 		if (Settings::bHideVanillaTargetBar || Settings::uBossBarModifyHUD == BossBarModifyHUD::kHideCompass && !_bossInfoBarMap.empty()) {
-			auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
-			if (hud) {
-				if (!_bVanillaEnemyHealthAlphaSaved) {
-					hud.get()->uiMovie->GetVariable(&_savedVanillaEnemyHealthAlpha, "HUDMovieBaseInstance.EnemyHealth_mc._alpha");
-					_bVanillaEnemyHealthAlphaSaved = true;
-				}
+			auto hudPtr = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
+			if (hudPtr) {
+				auto hud = hudPtr.get();
+				if (hud && hud->uiMovie) {
+					if (!_bVanillaEnemyHealthAlphaSaved) {
+						hud->uiMovie->GetVariable(&_savedVanillaEnemyHealthAlpha, "HUDMovieBaseInstance.EnemyHealth_mc._alpha");
+						_bVanillaEnemyHealthAlphaSaved = true;
+					}
 
-				hud.get()->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", 0.f);
-				_bVanillaEnemyHealthHidden = true;
+					hud->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", 0.f);
+					_bVanillaEnemyHealthHidden = true;
+				}				
 			}
 		} else if (_bVanillaEnemyHealthHidden) {
-			auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
-			if (hud) {
-				hud.get()->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", _savedVanillaEnemyHealthAlpha);
-				_bVanillaEnemyHealthHidden = false;
+			auto hudPtr = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
+			if (hudPtr) {
+				auto hud = hudPtr.get();
+				if (hud && hud->uiMovie) {
+					hud->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", _savedVanillaEnemyHealthAlpha);
+					_bVanillaEnemyHealthHidden = false;
+				}				
 			}
 		}
 
@@ -904,6 +1022,38 @@ namespace Scaleform
 
 		// sort widget depths
 		_view->Invoke("_root.TrueHUD.SortDepths", nullptr, &depthArray, 1);
+
+		UpdateColors();
+	}
+
+	void TrueHUDMenu::UpdateColors()
+	{
+		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
+		for (auto actorHandle : _pendingColorChanges) {
+			if (actorHandle == playerHandle) {
+				if (_playerWidget) {
+					_playerWidget->RefreshColors();
+					continue;
+				}
+			}
+
+			// try the boss bars first
+			auto it = _bossInfoBarMap.find(actorHandle);
+			if (it != _bossInfoBarMap.end()) {
+				auto& widget = it->second;
+				widget->RefreshColors();
+				continue;
+			}
+
+			// try normal info bars
+			auto iter = _actorInfoBarMap.find(actorHandle);
+			if (iter != _actorInfoBarMap.end()) {
+				auto& widget = iter->second;
+				widget->RefreshColors();
+				continue;
+			}
+		}
+		_pendingColorChanges.clear();
 	}
 
 	void TrueHUDMenu::UpdateVisibility()
@@ -1031,6 +1181,95 @@ namespace Scaleform
 		data.SetMember("widgetType", widgetType);
 
 		a_array.PushBack(data);
+	}
+
+	bool TrueHUDMenu::BarColorOverride::IsEmpty() const
+	{
+		return !bOverrideBarColor && !bOverridePhantomColor && !bOverrideBackgroundColor && !bOverridePenaltyColor && !bOverrideFlashColor;
+	}
+
+	bool TrueHUDMenu::BarColorOverride::GetColor(BarColorType a_colorType, uint32_t& a_outColor) const
+	{
+		switch (a_colorType) {
+		case BarColorType::BarColor:
+			if (bOverrideBarColor) {
+				a_outColor = barColor;
+				return true;
+			}
+			return false;
+		case BarColorType::PhantomColor:
+			if (bOverridePhantomColor) {
+				a_outColor = phantomColor;
+				return true;
+			}
+			return false;
+		case BarColorType::BackgroundColor:
+			if (bOverrideBackgroundColor) {
+				a_outColor = backgroundColor;
+				return true;
+			}
+			return false;
+		case BarColorType::PenaltyColor:
+			if (bOverridePenaltyColor) {
+				a_outColor = penaltyColor;
+				return true;
+			}
+			return false;
+		case BarColorType::FlashColor:
+			if (bOverrideFlashColor) {
+				a_outColor = flashColor;
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	void TrueHUDMenu::BarColorOverride::SetOverride(BarColorType a_colorType, uint32_t a_color)
+	{
+		switch (a_colorType) {
+		case BarColorType::BarColor:
+			barColor = a_color;
+			bOverrideBarColor = true;
+			break;
+		case BarColorType::PhantomColor:
+			phantomColor = a_color;
+			bOverridePhantomColor = true;
+			break;
+		case BarColorType::BackgroundColor:
+			backgroundColor = a_color;
+			bOverrideBackgroundColor = true;
+			break;
+		case BarColorType::PenaltyColor:
+			penaltyColor = a_color;
+			bOverridePenaltyColor = true;
+			break;
+		case BarColorType::FlashColor:
+			flashColor = a_color;
+			bOverrideFlashColor = true;
+			break;
+		}
+	}
+
+	void TrueHUDMenu::BarColorOverride::RemoveOverride(BarColorType a_colorType)
+	{
+		switch (a_colorType) {
+		case BarColorType::BarColor:
+			bOverrideBarColor = false;
+			break;
+		case BarColorType::PhantomColor:
+			bOverridePhantomColor = false;
+			break;
+		case BarColorType::BackgroundColor:
+			bOverrideBackgroundColor = false;
+			break;
+		case BarColorType::PenaltyColor:
+			bOverridePenaltyColor = false;
+			break;
+		case BarColorType::FlashColor:
+			bOverrideFlashColor = false;
+			break;
+		}
 	}
 
 }

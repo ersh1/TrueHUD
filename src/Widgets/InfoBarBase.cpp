@@ -64,6 +64,36 @@ namespace Scaleform
 		_object.Invoke("flashSpecial", nullptr, &arg, 1);
 	}
 
+	void InfoBarBase::RefreshColors()
+	{
+		using ColorType = TRUEHUD_API::BarColorType;
+
+		auto hudMenu = HUDHandler::GetTrueHUDMenu();
+
+		RE::GFxValue args[20];
+		args[0].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::BarColor));
+		args[1].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::PhantomColor));
+		args[2].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::BackgroundColor));
+		args[3].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::PenaltyColor));
+		args[4].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::FlashColor));
+		args[5].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::BarColor));
+		args[6].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::PhantomColor));
+		args[7].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::BackgroundColor));
+		args[8].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::PenaltyColor));
+		args[9].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::FlashColor));
+		args[10].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::BarColor));
+		args[11].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::PhantomColor));
+		args[12].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::BackgroundColor));
+		args[13].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::PenaltyColor));
+		args[14].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::FlashColor));
+		args[15].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::BarColor));
+		args[16].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::PhantomColor));
+		args[17].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::BackgroundColor));
+		args[18].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::PenaltyColor));
+		args[19].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::FlashColor));
+		_object.Invoke("setColors", nullptr, args, 20);
+	}
+
 	void InfoBarBase::UpdateInfo()
 	{	
 		auto playerCharacter = RE::PlayerCharacter::GetSingleton();
@@ -120,31 +150,42 @@ namespace Scaleform
 				_widgetState = WidgetState::kHidden;
 			}
 
+			const auto shouldBarBeDisplayed = [&]() {
+				if (_barType == BarType::kBossInfoBar) {
+					return !bIsTeammate && actor->IsInCombat() && actor->IsHostileToActor(playerCharacter);
+				} else if (_barType == BarType::kActorInfoBar) {
+					if (targetType > kTarget && !actor->IsInCombat()) {
+						return false;
+					}
+					switch (targetType) {
+					case TargetType::kTarget:
+						return true;
+					case TargetType::kEnemy:
+						return Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever;
+					case TargetType::kTeammate:
+						return Settings::uInfoBarDisplayTeammates > InfoBarsDisplayMode::kNever;
+					case TargetType::kOther:
+						return Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever;
+					}
+				}
+				return false;
+			};
+
 			if (targetState > kBleedingOut) {
 				SetWidgetState(WidgetStateMode::kTargetKilled);
-
-			} else if (_barType == BarType::kBossInfoBar) {
-				if (bIsTeammate || !actor->IsHostileToActor(playerCharacter)) {
-					SetWidgetState(WidgetStateMode::kRemove);
-				}
+			} else if (!shouldBarBeDisplayed()) {
+				SetWidgetState(WidgetStateMode::kRemove);
 			} else if (_barType == BarType::kActorInfoBar) {
-				if (targetType > kTarget && 
-					(!actor->IsInCombat() || 
-						(bIsTeammate && Settings::uInfoBarDisplayTeammates == InfoBarsDisplayMode::kNever) ||
-						(!bIsTeammate && !actor->IsHostileToActor(playerCharacter)))) {
-					SetWidgetState(WidgetStateMode::kRemove);
+				if (_bIsOffscreen) {
+					SetWidgetState(WidgetStateMode::kHide);
 				} else {
-					if (_bIsOffscreen) {
-						SetWidgetState(WidgetStateMode::kHide);
+					bool r8 = false;
+					bool bHasLOS = targetType == kTarget ? true : playerCharacter->HasLineOfSight(actor, r8);
+					bool bVisible = bHasLOS && !(actor->GetActorValue(RE::ActorValue::kInvisibility) > 0);
+					if (bVisible) {
+						SetWidgetState(WidgetStateMode::kShow);
 					} else {
-						bool r8 = false;
-						bool bHasLOS = targetType == kTarget ? true : playerCharacter->HasLineOfSight(actor, r8);
-						bool bVisible = bHasLOS && !(actor->GetActorValue(RE::ActorValue::kInvisibility) > 0);
-						if (bVisible) {
-							SetWidgetState(WidgetStateMode::kShow);
-						} else {
-							SetWidgetState(WidgetStateMode::kHide);
-						}
+						SetWidgetState(WidgetStateMode::kHide);
 					}
 				}
 			} 
@@ -154,10 +195,10 @@ namespace Scaleform
 		auto targetLevel = actor->GetLevel();
 
 		uint32_t levelColor = Settings::uDefaultColor;
-		uint32_t outlineColor = Settings::uDefaultColor;
+		uint32_t outlineColor = Settings::uDefaultColorOutline;
 		if (bIsTeammate) {
 			levelColor = Settings::uTeammateColor;
-			outlineColor = Settings::uTeammateColor;
+			outlineColor = Settings::uTeammateColorOutline;
 		} else if (playerLevel - targetLevel > Settings::uInfoBarLevelThreshold) {
 			levelColor = Settings::uWeakerColor;
 			if (Settings::bInfoBarLevelColorOutline) {
@@ -166,7 +207,7 @@ namespace Scaleform
 		} else if (targetLevel - playerLevel > Settings::uInfoBarLevelThreshold) {
 			levelColor = Settings::uStrongerColor;
 			if (Settings::bInfoBarLevelColorOutline) {
-				outlineColor = Settings::uStrongerColor;
+				outlineColor = Settings::uStrongerColorOutline;
 			}
 		}
 
@@ -178,24 +219,30 @@ namespace Scaleform
 			soulType = 7;
 		} else if (Settings::kywd_noSoulTrap && actor->HasKeyword(Settings::kywd_noSoulTrap)) {
 			soulType = 0;
-		} else if (auto isSentient = IsSentient(actor)) {  // If sentient, then don't bother all sentients have black soul gem levels
+		} else if (auto isSentient = IsSentient(actor)) {  // If sentient, then don't bother - all sentients have black soul gem levels
 			soulType = 6;
 		} else {
 			soulType = GetSoulType(targetLevel, static_cast<uint8_t>(isSentient));
 		}
 
-		float maxHealth = actor->GetPermanentActorValue(RE::ActorValue::kHealth);
+		float permanentHealth = actor->GetPermanentActorValue(RE::ActorValue::kHealth);
+		float temporaryHealth = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kHealth);
+		float maxHealth = permanentHealth + temporaryHealth;
 		float health;
 		if (targetState == kDead || targetState == kBleedingOutEssential) {
 			health = 0;
 		} else {
 			health = actor->GetActorValue(RE::ActorValue::kHealth);
 		}
-		float maxMagicka = actor->GetPermanentActorValue(RE::ActorValue::kMagicka);
+		float permanentMagicka = actor->GetPermanentActorValue(RE::ActorValue::kMagicka);
+		float temporaryMagicka = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kMagicka);
+		float maxMagicka = permanentMagicka + temporaryMagicka;
 		float magicka = actor->GetActorValue(RE::ActorValue::kMagicka);
-		float maxStamina = actor->GetPermanentActorValue(RE::ActorValue::kStamina);
+		float permanentStamina = actor->GetPermanentActorValue(RE::ActorValue::kStamina);
+		float temporaryStamina = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
+		float maxStamina = permanentStamina + temporaryStamina;
 		float stamina = actor->GetActorValue(RE::ActorValue::kStamina);
-
+		
 		RE::GFxValue args[18];
 		args[0].SetNumber(targetType);
 		args[1].SetNumber(_widgetState);

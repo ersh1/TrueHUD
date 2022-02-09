@@ -69,6 +69,37 @@ namespace Scaleform
 		_object.Invoke("flashSpecial", nullptr, &arg, 1);
 	}
 
+	void PlayerWidget::RefreshColors()
+	{
+		using ColorType = TRUEHUD_API::BarColorType;
+		
+		auto hudMenu = HUDHandler::GetTrueHUDMenu();
+		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
+
+		RE::GFxValue args[20];
+		args[0].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::BarColor));
+		args[1].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::PhantomColor));
+		args[2].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::BackgroundColor));
+		args[3].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::PenaltyColor));
+		args[4].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::FlashColor));
+		args[5].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::BarColor));
+		args[6].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::PhantomColor));
+		args[7].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::BackgroundColor));
+		args[8].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::PenaltyColor));
+		args[9].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::FlashColor));
+		args[10].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::BarColor));
+		args[11].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::PhantomColor));
+		args[12].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::BackgroundColor));
+		args[13].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::PenaltyColor));
+		args[14].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::FlashColor));
+		args[15].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::BarColor));
+		args[16].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::PhantomColor));
+		args[17].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::BackgroundColor));
+		args[18].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::PenaltyColor));
+		args[19].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::FlashColor));
+		_object.Invoke("setColors", nullptr, args, 20);
+	}
+
 	void PlayerWidget::UpdatePenaltyPercentages()
 	{
 		if (Settings::glob_survivalModeEnabled &&
@@ -129,11 +160,12 @@ namespace Scaleform
 
 	void PlayerWidget::LoadConfig()
 	{
-		using BarType = TRUEHUD_API::PlayerWidgetBarType;
-		using ColorType = TRUEHUD_API::PlayerWidgetBarColorType;
+		using ColorType = TRUEHUD_API::BarColorType;
 
 		auto hudHandler = HUDHandler::GetSingleton();
 		auto hudMenu = HUDHandler::GetTrueHUDMenu();
+
+		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
 
 		RE::NiPoint2 stageSize;
 		auto def = _view->GetMovieDef();
@@ -177,26 +209,26 @@ namespace Scaleform
 		args[31].SetNumber(stageSize.y * Settings::fPlayerWidgetMagickaY);
 		args[32].SetNumber(stageSize.x * Settings::fPlayerWidgetStaminaX);
 		args[33].SetNumber(stageSize.y * Settings::fPlayerWidgetStaminaY);
-		args[34].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::BarColor));
-		args[35].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::PhantomColor));
-		args[36].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::BackgroundColor));
-		args[37].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::PenaltyColor));
-		args[38].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::FlashColor));
-		args[39].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::BarColor));
-		args[40].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::PhantomColor));
-		args[41].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::BackgroundColor));
-		args[42].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::PenaltyColor));
-		args[43].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::FlashColor));
-		args[44].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::BarColor));
-		args[45].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::PhantomColor));
-		args[46].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::BackgroundColor));
-		args[47].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::PenaltyColor));
-		args[48].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::FlashColor));
-		args[49].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::BarColor));
-		args[50].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::PhantomColor));
-		args[51].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::BackgroundColor));
-		args[52].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::PenaltyColor));
-		args[53].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::FlashColor));
+		args[34].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::BarColor));
+		args[35].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::PhantomColor));
+		args[36].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::BackgroundColor));
+		args[37].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::PenaltyColor));
+		args[38].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kHealth, ColorType::FlashColor));
+		args[39].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::BarColor));
+		args[40].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::PhantomColor));
+		args[41].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::BackgroundColor));
+		args[42].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::PenaltyColor));
+		args[43].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kMagicka, ColorType::FlashColor));
+		args[44].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::BarColor));
+		args[45].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::PhantomColor));
+		args[46].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::BackgroundColor));
+		args[47].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::PenaltyColor));
+		args[48].SetNumber(hudMenu->GetBarColor(playerHandle, RE::ActorValue::kStamina, ColorType::FlashColor));
+		args[49].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::BarColor));
+		args[50].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::PhantomColor));
+		args[51].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::BackgroundColor));
+		args[52].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::PenaltyColor));
+		args[53].SetNumber(hudMenu->GetSpecialBarColor(playerHandle, ColorType::FlashColor));
 		_object.Invoke("loadConfig", nullptr, args, 54);
 	}
 
@@ -206,25 +238,37 @@ namespace Scaleform
 		UpdatePenaltyPercentages();
 
 		auto playerCharacter = RE::PlayerCharacter::GetSingleton();
-		float maxHealth, health, maxMagicka, magicka, maxStamina, stamina;
+		float permanentHealth, temporaryHealth, maxHealth, health, permanentMagicka, temporaryMagicka, maxMagicka, magicka, permanentStamina, temporaryStamina, maxStamina, stamina;
 
-		maxHealth = playerCharacter->GetPermanentActorValue(RE::ActorValue::kHealth);
+		permanentHealth = playerCharacter->GetPermanentActorValue(RE::ActorValue::kHealth);
+		temporaryHealth = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kHealth);
+		maxHealth = permanentHealth + temporaryHealth;
+		maxHealth /= (1.f - _healthPenaltyPct);
 		if (playerCharacter->IsDead()) {
 			health = 0;
 		} else {
 			health = playerCharacter->GetActorValue(RE::ActorValue::kHealth);
 		}
-		maxMagicka = playerCharacter->GetPermanentActorValue(RE::ActorValue::kMagicka);
+
+		permanentMagicka = playerCharacter->GetPermanentActorValue(RE::ActorValue::kMagicka);
+		temporaryMagicka = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kMagicka);
+		maxMagicka = permanentMagicka + temporaryMagicka;
+		maxMagicka /= (1.f - _magickaPenaltyPct);
 		magicka = playerCharacter->GetActorValue(RE::ActorValue::kMagicka);
 
 		RE::ActorPtr mount;
 		bool bIsInMountMode = false;
 		if (Settings::bPlayerWidgetDisplayMountStamina && playerCharacter->GetMount(mount)) {
-			maxStamina = mount->GetPermanentActorValue(RE::ActorValue::kStamina);
+			permanentStamina = mount->GetPermanentActorValue(RE::ActorValue::kStamina);
+			temporaryStamina = mount->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
+			maxStamina = permanentStamina + temporaryStamina;
 			stamina = mount->GetActorValue(RE::ActorValue::kStamina);
 			bIsInMountMode = true;
 		} else {
-			maxStamina = playerCharacter->GetPermanentActorValue(RE::ActorValue::kStamina);
+			permanentStamina = playerCharacter->GetPermanentActorValue(RE::ActorValue::kStamina);
+			temporaryStamina = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
+			maxStamina = permanentStamina + temporaryStamina;
+			maxStamina /= (1.f - _staminaPenaltyPct);
 			stamina = playerCharacter->GetActorValue(RE::ActorValue::kStamina);
 			bIsInMountMode = false;
 		}

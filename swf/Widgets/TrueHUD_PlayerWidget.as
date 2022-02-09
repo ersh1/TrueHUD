@@ -132,13 +132,13 @@ class Widgets.TrueHUD_PlayerWidget extends MovieClip
 
     public function init()
     {
-        Health.init(bDisplayPhantomBars, fPhantomDuration, uHealthBarDirection, true, true, false, true, true);
+        Health.init(bDisplayPhantomBars, fPhantomDuration, uHealthBarDirection, true, true, true, true, true);
         Health.setColor(uHealthColor, uHealthPhantomColor, uHealthBackgroundColor, uHealthPenaltyColor, uHealthFlashColor);
 
-        Magicka.init(bDisplayPhantomBars, fPhantomDuration, uMagickaBarDirection, true, true, false, true, true);
+        Magicka.init(bDisplayPhantomBars, fPhantomDuration, uMagickaBarDirection, true, true, true, true, true);
         Magicka.setColor(uMagickaColor, uMagickaPhantomColor, uMagickaBackgroundColor, uMagickaPenaltyColor, uMagickaFlashColor);
 
-        Stamina.init(bDisplayPhantomBars, fPhantomDuration, uStaminaBarDirection, true, true, false, true, true);
+        Stamina.init(bDisplayPhantomBars, fPhantomDuration, uStaminaBarDirection, true, true, true, true, true);
         Stamina.setColor(uStaminaColor, uStaminaPhantomColor, uStaminaBackgroundColor, uStaminaPenaltyColor, uStaminaFlashColor);
 
 		Special.SpecialBar.init(bDisplaySpecialPhantomBar, fPhantomDuration, uHealthBarDirection, false, false, true, true, false);
@@ -927,6 +927,55 @@ class Widgets.TrueHUD_PlayerWidget extends MovieClip
 			init();
 			delete this.onEnterFrame;
 		}
+	}
+
+	public function setColors(
+		a_uHealthColor: Number,
+		a_uHealthPhantomColor: Number,
+		a_uHealthBackgroundColor: Number,
+		a_uHealthPenaltyColor: Number,
+		a_uHealthFlashColor: Number,
+		a_uMagickaColor: Number,
+		a_uMagickaPhantomColor: Number,
+		a_uMagickaBackgroundColor: Number,
+		a_uMagickaPenaltyColor: Number,
+		a_uMagickaFlashColor: Number,
+		a_uStaminaColor: Number,
+		a_uStaminaPhantomColor: Number,
+		a_uStaminaBackgroundColor: Number,
+		a_uStaminaPenaltyColor: Number,
+		a_uStaminaFlashColor: Number,
+		a_uSpecialColor: Number,
+		a_uSpecialPhantomColor: Number,
+		a_uSpecialBackgroundColor: Number,
+		a_uSpecialPenaltyColor: Number,
+		a_uSpecialFlashColor: Number)
+	{
+		uHealthColor = a_uHealthColor;
+		uHealthPhantomColor = a_uHealthPhantomColor;
+		uHealthBackgroundColor = a_uHealthBackgroundColor;
+		uHealthPenaltyColor = a_uHealthPenaltyColor;
+		uHealthFlashColor = a_uHealthFlashColor;
+		uMagickaColor = a_uMagickaColor;
+		uMagickaPhantomColor = a_uMagickaPhantomColor;
+		uMagickaBackgroundColor = a_uMagickaBackgroundColor;
+		uMagickaPenaltyColor = a_uMagickaPenaltyColor;
+		uMagickaFlashColor = a_uMagickaFlashColor;
+		uStaminaColor = a_uStaminaColor;
+		uStaminaPhantomColor = a_uStaminaPhantomColor;
+		uStaminaBackgroundColor = a_uStaminaBackgroundColor;
+		uStaminaPenaltyColor = a_uStaminaPenaltyColor;
+		uStaminaFlashColor = a_uStaminaFlashColor;
+		uSpecialColor = a_uSpecialColor;
+		uSpecialPhantomColor = a_uSpecialPhantomColor;
+		uSpecialBackgroundColor = a_uSpecialBackgroundColor;
+		uSpecialPenaltyColor = a_uSpecialPenaltyColor;
+		uSpecialFlashColor = a_uSpecialFlashColor;
+
+        Health.setColor(uHealthColor, uHealthPhantomColor, uHealthBackgroundColor, uHealthPenaltyColor, uHealthFlashColor);
+        Magicka.setColor(uMagickaColor, uMagickaPhantomColor, uMagickaBackgroundColor, uMagickaPenaltyColor, uMagickaFlashColor);
+        Stamina.setColor(uStaminaColor, uStaminaPhantomColor, uStaminaBackgroundColor, uStaminaPenaltyColor, uStaminaFlashColor);
+		Special.SpecialBar.setColor(uSpecialColor, uSpecialPhantomColor, uSpecialBackgroundColor, uSpecialPenaltyColor, uSpecialFlashColor);
 	}
 
 	public function updateWidth(a_bInstant: Boolean)

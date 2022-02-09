@@ -14,6 +14,7 @@ class Widgets.TrueHUD_BossBar extends Widgets.TrueHUD_InfoBarBase
 		super();
 
 		bHealthBarHasShadow = true;
+		bHealthBarHasShapeMask = true;
 		bHealthBarHasFlash = true;
 		healthXOffset = 6;
 		killDelay = 4;

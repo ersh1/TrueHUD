@@ -53,6 +53,8 @@ class Widgets.TrueHUD_InfoBar extends Widgets.TrueHUD_InfoBarBase
 		Indicator._alpha = 0;
 		TargetName._alpha = 0;
 
+		TargetName.autoSize = "center";
+
 		nameFadeTimeline.set(TargetName, {_alpha:0});
 		nameFadeTimeline.to(TargetName, 0.25, {_alpha:100}, 0);
 	}

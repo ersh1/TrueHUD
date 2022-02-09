@@ -17,8 +17,7 @@ class HUDHandler :
 private:
 	using EventResult = RE::BSEventNotifyControl;
 	using TrueHUDMenu = Scaleform::TrueHUDMenu;
-	using PlayerWidgetBarType = ::TRUEHUD_API::PlayerWidgetBarType;
-	using PlayerWidgetBarColorType = ::TRUEHUD_API::PlayerWidgetBarColorType;
+	using BarColorType = ::TRUEHUD_API::BarColorType;
 	using WidgetRemovalMode = TRUEHUD_API::WidgetRemovalMode;
 	using SpecialResourceCallback = TRUEHUD_API::SpecialResourceCallback;
 	using APIResultCallback = TRUEHUD_API::APIResultCallback;
@@ -63,13 +62,16 @@ public:
 
 	void AddPlayerWidget();
 	void RemovePlayerWidget();
-	void OverridePlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color);
-	void RevertPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType);
 	void UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow);
 
 	void AddFloatingWorldTextWidget(std::string a_text, uint32_t a_color, float a_duration, bool a_bSpecial, RE::NiPoint3 a_worldPosition);
 	void AddFloatingScreenTextWidget(std::string a_text, uint32_t a_color, float a_duration, bool a_bSpecial, RE::NiPoint2 a_screenPosition);
 	void AddStackingDamageWorldTextWidget(RE::ObjectRefHandle a_refHandle, float a_damage);
+
+	void OverrideBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color);
+	void OverrideSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color);
+	void RevertBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType);
+	void RevertSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType);
 
 	void LoadCustomWidgets(SKSE::PluginHandle a_pluginHandle, std::string_view a_filePath, APIResultCallback&& a_successCallback);
 	void RegisterNewWidgetType(SKSE::PluginHandle a_pluginHandle, uint32_t a_widgetType);

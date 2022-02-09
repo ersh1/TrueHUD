@@ -32,19 +32,8 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::RequestPlayerWidgetBarColorsControl(SKSE::PluginHandle a_modHandle) noexcept
+	APIResult TrueHUDInterface::RequestPlayerWidgetBarColorsControl(SKSE::PluginHandle) noexcept
 	{
-		const auto owner = playerWidgetBarColorsControlOwner.load(std::memory_order::memory_order_acquire);
-		if (owner != SKSE::kInvalidPluginHandle)
-			if (owner == a_modHandle)
-				return APIResult::AlreadyGiven;
-			else
-				return APIResult::AlreadyTaken;
-
-		auto expected = static_cast<SKSE::PluginHandle>(SKSE::kInvalidPluginHandle);
-		if (!playerWidgetBarColorsControlOwner.compare_exchange_strong(expected, a_modHandle, std::memory_order::memory_order_acq_rel))
-			return APIResult::AlreadyTaken;
-
 		return APIResult::OK;
 	}
 
@@ -127,29 +116,43 @@ namespace Messaging
 		}
 	}
 
-	APIResult TrueHUDInterface::OverridePlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color) noexcept
+	APIResult TrueHUDInterface::OverridePlayerWidgetBarColor(SKSE::PluginHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType, uint32_t a_color) noexcept
 	{
-		if (playerWidgetBarColorsControlOwner != a_modHandle) {
-			return APIResult::NotOwner;
-		}
-
-		auto hudHandler = HUDHandler::GetSingleton();
-		if (hudHandler) {
-			hudHandler->OverridePlayerWidgetBarColor(a_playerWidgetBarType, a_colorType, a_color);
+		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
+		switch (a_playerWidgetBarType) {
+		case PlayerWidgetBarType::HealthBar:
+			OverrideBarColor(playerHandle, RE::ActorValue::kHealth, a_colorType, a_color);
+			break;
+		case PlayerWidgetBarType::MagickaBar:
+			OverrideBarColor(playerHandle, RE::ActorValue::kMagicka, a_colorType, a_color);
+			break;
+		case PlayerWidgetBarType::StaminaBar:
+			OverrideBarColor(playerHandle, RE::ActorValue::kStamina, a_colorType, a_color);
+			break;
+		case PlayerWidgetBarType::SpecialBar:
+			OverrideSpecialBarColor(playerHandle, a_colorType, a_color);
+			break;
 		}
 
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::RevertPlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType) noexcept
+	APIResult TrueHUDInterface::RevertPlayerWidgetBarColor(SKSE::PluginHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType) noexcept
 	{
-		if (playerWidgetBarColorsControlOwner != a_modHandle) {
-			return APIResult::NotOwner;
-		}
-
-		auto hudHandler = HUDHandler::GetSingleton();
-		if (hudHandler) {
-			hudHandler->RevertPlayerWidgetBarColor(a_playerWidgetBarType, a_colorType);
+		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
+		switch (a_playerWidgetBarType) {
+		case PlayerWidgetBarType::HealthBar:
+			RevertBarColor(playerHandle, RE::ActorValue::kHealth, a_colorType);
+			break;
+		case PlayerWidgetBarType::MagickaBar:
+			RevertBarColor(playerHandle, RE::ActorValue::kMagicka, a_colorType);
+			break;
+		case PlayerWidgetBarType::StaminaBar:
+			RevertBarColor(playerHandle, RE::ActorValue::kStamina, a_colorType);
+			break;
+		case PlayerWidgetBarType::SpecialBar:
+			RevertSpecialBarColor(playerHandle, a_colorType);
+			break;
 		}
 
 		return APIResult::OK;
@@ -233,7 +236,7 @@ namespace Messaging
 
 	SKSE::PluginHandle TrueHUDInterface::GetPlayerWidgetBarColorsControlOwner() const noexcept
 	{
-		return playerWidgetBarColorsControlOwner;
+		return SKSE::kInvalidPluginHandle;
 	}
 
 	SKSE::PluginHandle TrueHUDInterface::GetSpecialResourceBarControlOwner() const noexcept
@@ -250,12 +253,8 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::ReleasePlayerWidgetBarColorsControl(SKSE::PluginHandle a_modHandle) noexcept
+	APIResult TrueHUDInterface::ReleasePlayerWidgetBarColorsControl(SKSE::PluginHandle) noexcept
 	{
-		if (playerWidgetBarColorsControlOwner != a_modHandle)
-			return APIResult::NotOwner;
-		playerWidgetBarColorsControlOwner.store(SKSE::kInvalidPluginHandle, std::memory_order::memory_order_release);
-
 		return APIResult::OK;
 	}
 
@@ -279,14 +278,41 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
+	void TrueHUDInterface::OverrideBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		if (hudHandler) {
+			hudHandler->OverrideBarColor(a_actorHandle, a_actorValue, a_colorType, a_color);
+		}
+	}
+
+	void TrueHUDInterface::OverrideSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		if (hudHandler) {
+			hudHandler->OverrideSpecialBarColor(a_actorHandle, a_colorType, a_color);
+		}
+	}
+
+	void TrueHUDInterface::RevertBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		if (hudHandler) {
+			hudHandler->RevertBarColor(a_actorHandle, a_actorValue, a_colorType);
+		}
+	}
+
+	void TrueHUDInterface::RevertSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		if (hudHandler) {
+			hudHandler->RevertSpecialBarColor(a_actorHandle, a_colorType);
+		}
+	}
+
 	bool TrueHUDInterface::IsTargetControlTaken() const noexcept
 	{
 		return targetControlOwner.load(std::memory_order::memory_order_acquire) != SKSE::kInvalidPluginHandle;
-	}
-
-	bool TrueHUDInterface::IsPlayerWidgetBarColorsControlTaken() const noexcept
-	{
-		return playerWidgetBarColorsControlOwner.load(std::memory_order::memory_order_acquire) != SKSE::kInvalidPluginHandle;
 	}
 
 	bool TrueHUDInterface::IsSpecialResourceBarsControlTaken() const noexcept
@@ -329,7 +355,9 @@ namespace Messaging
 		}
 
 		const auto request = reinterpret_cast<const TRUEHUD_API::InterfaceRequest*>(cmd->messageData);
-		if (!(request->interfaceVersion == TRUEHUD_API::InterfaceVersion::V1)) {
+		if (!(request->interfaceVersion == TRUEHUD_API::InterfaceVersion::V1 ||
+			request->interfaceVersion == TRUEHUD_API::InterfaceVersion::V2))
+		{
 			DispatchToPlugin(&packet, a_msg->sender);
 			return;
 		}
@@ -345,6 +373,8 @@ namespace Messaging
 
 		switch (request->interfaceVersion) {
 		case TRUEHUD_API::InterfaceVersion::V1:
+			[[fallthrough]];
+		case TRUEHUD_API::InterfaceVersion::V2:
 			container.interfaceInstance = static_cast<void*>(api);
 			break;
 		default:

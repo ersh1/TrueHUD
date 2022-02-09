@@ -857,6 +857,55 @@ class Widgets.TrueHUD_InfoBarBase extends MovieClip
 	{
 		return bReadyToRemove;
 	}
+
+	public function setColors(
+		a_uHealthColor: Number,
+		a_uHealthPhantomColor: Number,
+		a_uHealthBackgroundColor: Number,
+		a_uHealthPenaltyColor: Number,
+		a_uHealthFlashColor: Number,
+		a_uMagickaColor: Number,
+		a_uMagickaPhantomColor: Number,
+		a_uMagickaBackgroundColor: Number,
+		a_uMagickaPenaltyColor: Number,
+		a_uMagickaFlashColor: Number,
+		a_uStaminaColor: Number,
+		a_uStaminaPhantomColor: Number,
+		a_uStaminaBackgroundColor: Number,
+		a_uStaminaPenaltyColor: Number,
+		a_uStaminaFlashColor: Number,
+		a_uSpecialColor: Number,
+		a_uSpecialPhantomColor: Number,
+		a_uSpecialBackgroundColor: Number,
+		a_uSpecialPenaltyColor: Number,
+		a_uSpecialFlashColor: Number)
+	{
+		uHealthColor = a_uHealthColor;
+		uHealthPhantomColor = a_uHealthPhantomColor;
+		uHealthBackgroundColor = a_uHealthBackgroundColor;
+		uHealthPenaltyColor = a_uHealthPenaltyColor;
+		uHealthFlashColor = a_uHealthFlashColor;
+		uMagickaColor = a_uMagickaColor;
+		uMagickaPhantomColor = a_uMagickaPhantomColor;
+		uMagickaBackgroundColor = a_uMagickaBackgroundColor;
+		uMagickaPenaltyColor = a_uMagickaPenaltyColor;
+		uMagickaFlashColor = a_uMagickaFlashColor;
+		uStaminaColor = a_uStaminaColor;
+		uStaminaPhantomColor = a_uStaminaPhantomColor;
+		uStaminaBackgroundColor = a_uStaminaBackgroundColor;
+		uStaminaPenaltyColor = a_uStaminaPenaltyColor;
+		uStaminaFlashColor = a_uStaminaFlashColor;
+		uSpecialColor = a_uSpecialColor;
+		uSpecialPhantomColor = a_uSpecialPhantomColor;
+		uSpecialBackgroundColor = a_uSpecialBackgroundColor;
+		uSpecialPenaltyColor = a_uSpecialPenaltyColor;
+		uSpecialFlashColor = a_uSpecialFlashColor;
+
+		Bars.HealthBar.setColor(uHealthColor, uHealthPhantomColor, uHealthBackgroundColor, uHealthPenaltyColor, uHealthFlashColor);
+		Bars.Resources.MagickaBar.setColor(uMagickaColor, uMagickaPhantomColor, uMagickaBackgroundColor, uMagickaPenaltyColor, uMagickaFlashColor);
+		Bars.Resources.StaminaBar.setColor(uStaminaColor, uStaminaPhantomColor, uStaminaBackgroundColor, uStaminaPenaltyColor, uStaminaFlashColor);
+		Bars.Special.SpecialBar.setColor(uSpecialColor, uSpecialPhantomColor, uSpecialBackgroundColor, uSpecialPenaltyColor, uSpecialFlashColor);
+	}
 	
 	public function setWidth(a_width: Number, a_resourceWidth: Number)
 	{	

@@ -16,6 +16,7 @@ namespace Scaleform
 
 		virtual void FlashActorValue(RE::ActorValue a_actorValue, bool a_bLong);
 		virtual void FlashSpecial(bool a_bLong);
+		virtual void RefreshColors();
 		virtual void UpdatePenaltyPercentages();
 		virtual void UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow);
 

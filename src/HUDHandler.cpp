@@ -183,11 +183,11 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESHitEvent* a_event,
 							HUDHandler::GetSingleton()->AddBossInfoBar(targetActorHandle);
 						} else if (bInfoBarsEnabled) {  // Not a boss, add a normal info bar
 							if (targetActor->IsHostileToActor(RE::PlayerCharacter::GetSingleton())) {
-								if (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever) {
+								if (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever && targetActor->IsInCombat()) {
 									HUDHandler::GetSingleton()->AddActorInfoBar(targetActorHandle);
 								}
 							} else if (!bTargetPlayerTeammate && Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever) {  // don't show info bars on teammates when hit by player
-								if (Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever) {
+								if (Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever && targetActor->IsInCombat()) {
 									HUDHandler::GetSingleton()->AddActorInfoBar(targetActorHandle);
 								}
 							}
@@ -202,11 +202,11 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESHitEvent* a_event,
 							HUDHandler::GetSingleton()->AddBossInfoBar(causeActorHandle);
 						} else if (bInfoBarsEnabled) {  // Not a boss, add a normal info bar
 							if (causeActor->IsHostileToActor(RE::PlayerCharacter::GetSingleton())) {
-								if (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever) {
+								if (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever && causeActor->IsInCombat()) {
 									HUDHandler::GetSingleton()->AddActorInfoBar(causeActorHandle);
 								}
 							} else if (!bCausePlayerTeammate && Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever) {  // don't show info bars on teammates when they hit player
-								if (Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever) {
+								if (Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever && causeActor->IsInCombat()) {
 									HUDHandler::GetSingleton()->AddActorInfoBar(causeActorHandle);
 								}
 							}
@@ -406,20 +406,6 @@ void HUDHandler::RemovePlayerWidget()
 	});
 }
 
-void HUDHandler::OverridePlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color)
-{
-	AddHUDTask([a_playerWidgetBarType, a_colorType, a_color](TrueHUDMenu& a_menu) {
-		a_menu.OverridePlayerWidgetBarColor(a_playerWidgetBarType, a_colorType, a_color);
-	});
-}
-
-void HUDHandler::RevertPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType)
-{
-	AddHUDTask([a_playerWidgetBarType, a_colorType](TrueHUDMenu& a_menu) {
-		a_menu.RevertPlayerWidgetBarColor(a_playerWidgetBarType, a_colorType);
-	});
-}
-
 void HUDHandler::UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow)
 {
 	if (!Settings::bEnablePlayerWidget) {
@@ -465,6 +451,34 @@ void HUDHandler::AddStackingDamageWorldTextWidget(RE::ObjectRefHandle a_refHandl
 	} else {
 		_stackingDamage.emplace(a_refHandle, a_damage);
 	}
+}
+
+void HUDHandler::OverrideBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color)
+{
+	AddHUDTask([a_actorHandle, a_actorValue, a_colorType, a_color](TrueHUDMenu& a_menu) {
+		a_menu.OverrideBarColor(a_actorHandle, a_actorValue, a_colorType, a_color);
+	});
+}
+
+void HUDHandler::OverrideSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color)
+{
+	AddHUDTask([a_actorHandle, a_colorType, a_color](TrueHUDMenu& a_menu) {
+		a_menu.OverrideSpecialBarColor(a_actorHandle, a_colorType, a_color);
+	});
+}
+
+void HUDHandler::RevertBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType)
+{
+	AddHUDTask([a_actorHandle, a_actorValue, a_colorType](TrueHUDMenu& a_menu) {
+		a_menu.RevertBarColor(a_actorHandle, a_actorValue, a_colorType);
+	});
+}
+
+void HUDHandler::RevertSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType)
+{
+	AddHUDTask([a_actorHandle, a_colorType](TrueHUDMenu& a_menu) {
+		a_menu.RevertSpecialBarColor(a_actorHandle, a_colorType);
+	});
 }
 
 void HUDHandler::LoadCustomWidgets(SKSE::PluginHandle a_pluginHandle, std::string_view a_filePath, APIResultCallback&& a_successCallback)

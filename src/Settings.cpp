@@ -22,6 +22,7 @@ void Settings::Initialize()
 	if (dataHandler) {
 		kywd_noSoulTrap = dataHandler->LookupForm<RE::BGSKeyword>(0x103AD2, "Skyrim.esm");
 		kywd_Dragon = dataHandler->LookupForm<RE::BGSKeyword>(0x35D59, "Skyrim.esm");
+		glob_trueHUDVersion = dataHandler->LookupForm<RE::TESGlobal>(0x801, "TrueHUD.esl");
 		glob_trueHUDSpecialResourceBars = dataHandler->LookupForm<RE::TESGlobal>(0x802, "TrueHUD.esl");
 	}
 
@@ -363,10 +364,13 @@ void Settings::ReadSettings()
 		ReadColorStringSetting(mcm, "Colors", "sSpecialFlashColor", uSpecialFlashColor);
 
 		ReadColorStringSetting(mcm, "Colors", "sDefaultColor", uDefaultColor);
+		ReadColorStringSetting(mcm, "Colors", "uDefaultColorOutline", uDefaultColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sWeakerColor", uWeakerColor);
 		ReadColorStringSetting(mcm, "Colors", "sWeakerColorOutline", uWeakerColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sStrongerColor", uStrongerColor);
+		ReadColorStringSetting(mcm, "Colors", "uStrongerColorOutline", uStrongerColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sTeammateColor", uTeammateColor);
+		ReadColorStringSetting(mcm, "Colors", "uTeammateColorOutline", uTeammateColorOutline);
 	};
 
 	logger::info("Reading MCM .ini...");
@@ -381,6 +385,10 @@ void Settings::ReadSettings()
 
 void Settings::OnPostLoadGame()
 {
+	if(glob_trueHUDVersion) {
+		glob_trueHUDVersion->value = 1.f;
+	}
+
 	if (glob_trueHUDSpecialResourceBars) {
 		glob_trueHUDSpecialResourceBars->value = Messaging::TrueHUDInterface::GetSingleton()->IsSpecialResourceBarsControlTaken();
 	}

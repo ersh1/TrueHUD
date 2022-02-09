@@ -8,8 +8,9 @@ namespace Messaging
 {
 	using APIResult = ::TRUEHUD_API::APIResult;
 	using InterfaceVersion1 = ::TRUEHUD_API::IVTrueHUD1;
+	using InterfaceVersion2 = ::TRUEHUD_API::IVTrueHUD2;
 	using PlayerWidgetBarType = ::TRUEHUD_API::PlayerWidgetBarType;
-	using PlayerWidgetBarColorType = ::TRUEHUD_API::PlayerWidgetBarColorType;
+	using BarColorType = ::TRUEHUD_API::BarColorType;
 	using WidgetRemovalMode = ::TRUEHUD_API::WidgetRemovalMode;
 	using InterfaceContainer = ::TRUEHUD_API::InterfaceContainer;
 
@@ -19,7 +20,7 @@ namespace Messaging
 	
 	using WidgetBase = ::TRUEHUD_API::WidgetBase;
 
-	class TrueHUDInterface : public InterfaceVersion1
+	class TrueHUDInterface : public InterfaceVersion2
 	{
 	private:
 		TrueHUDInterface() noexcept;
@@ -43,8 +44,8 @@ namespace Messaging
 		virtual void RemoveActorInfoBar(RE::ActorHandle a_actorHandle, WidgetRemovalMode a_removalMode) noexcept override;
 		virtual void AddBoss(RE::ActorHandle a_actorHandle) noexcept override;
 		virtual void RemoveBoss(RE::ActorHandle a_actorHandle, WidgetRemovalMode a_removalMode) noexcept override;
-		virtual APIResult OverridePlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color) noexcept override;
-		virtual APIResult RevertPlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType) noexcept override;
+		virtual APIResult OverridePlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType, uint32_t a_color) noexcept override;
+		virtual APIResult RevertPlayerWidgetBarColor(SKSE::PluginHandle a_modHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType) noexcept override;
 		virtual void FlashActorValue(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, bool a_bLong) noexcept override;
 		virtual APIResult FlashActorSpecialBar(SKSE::PluginHandle a_modHandle, RE::ActorHandle a_actorHandle, bool a_bLong) noexcept override;
 		virtual APIResult RegisterSpecialResourceFunctions(SKSE::PluginHandle a_modHandle, SpecialResourceCallback&& a_getCurrentSpecialResource, SpecialResourceCallback&& a_getMaxSpecialResource, bool a_bSpecialMode) noexcept override;
@@ -59,10 +60,14 @@ namespace Messaging
 		virtual APIResult ReleasePlayerWidgetBarColorsControl(SKSE::PluginHandle a_modHandle) noexcept override;
 		virtual APIResult ReleaseSpecialResourceBarControl(SKSE::PluginHandle a_modHandle) noexcept override;
 
+		// InterfaceVersion2
+		virtual void OverrideBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color) noexcept override;
+		virtual void OverrideSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color) noexcept override;
+		virtual void RevertBarColor(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType) noexcept override;
+		virtual void RevertSpecialBarColor(RE::ActorHandle a_actorHandle, BarColorType a_colorType) noexcept override;
+
 		// Does a mod have control over the current target?
 		bool IsTargetControlTaken() const noexcept;
-		// Does a mod have control over the player widget bar colors?
-		bool IsPlayerWidgetBarColorsControlTaken() const noexcept;
 		// Does a mod have control over the special resource bars?
 		bool IsSpecialResourceBarsControlTaken() const noexcept; 
 
@@ -77,7 +82,6 @@ namespace Messaging
 		unsigned long apiTID = 0;
 
 		std::atomic<SKSE::PluginHandle> targetControlOwner = SKSE::kInvalidPluginHandle;
-		std::atomic<SKSE::PluginHandle> playerWidgetBarColorsControlOwner = SKSE::kInvalidPluginHandle;
 		std::atomic<SKSE::PluginHandle> specialResourceBarsControlOwner = SKSE::kInvalidPluginHandle;
 	};
 

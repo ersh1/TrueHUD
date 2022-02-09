@@ -87,8 +87,7 @@ namespace Scaleform
 
 	void ActorInfoBar::LoadConfig()
 	{
-		using BarType = TRUEHUD_API::PlayerWidgetBarType;
-		using ColorType = TRUEHUD_API::PlayerWidgetBarColorType;
+		using ColorType = TRUEHUD_API::BarColorType;
 
 		auto hudHandler = HUDHandler::GetSingleton();
 		auto hudMenu = HUDHandler::GetTrueHUDMenu();
@@ -118,26 +117,26 @@ namespace Scaleform
 		args[21].SetNumber(Settings::fInfoBarResourceWidth);
 		args[22].SetNumber(Settings::fInfoBarTargetWidth);
 		args[23].SetNumber(Settings::fInfoBarTargetResourceWidth);
-		args[24].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::BarColor));
-		args[25].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::PhantomColor));
-		args[26].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::BackgroundColor));
-		args[27].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::PenaltyColor));
-		args[28].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::HealthBar, ColorType::FlashColor));
-		args[29].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::BarColor));
-		args[30].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::PhantomColor));
-		args[31].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::BackgroundColor));
-		args[32].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::PenaltyColor));
-		args[33].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::MagickaBar, ColorType::FlashColor));
-		args[34].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::BarColor));
-		args[35].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::PhantomColor));
-		args[36].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::BackgroundColor));
-		args[37].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::PenaltyColor));
-		args[38].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::StaminaBar, ColorType::FlashColor));
-		args[39].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::BarColor));
-		args[40].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::PhantomColor));
-		args[41].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::BackgroundColor));
-		args[42].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::PenaltyColor));
-		args[43].SetNumber(hudMenu->GetPlayerWidgetBarColor(BarType::SpecialBar, ColorType::FlashColor));
+		args[24].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::BarColor));
+		args[25].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::PhantomColor));
+		args[26].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::BackgroundColor));
+		args[27].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::PenaltyColor));
+		args[28].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kHealth, ColorType::FlashColor));
+		args[29].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::BarColor));
+		args[30].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::PhantomColor));
+		args[31].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::BackgroundColor));
+		args[32].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::PenaltyColor));
+		args[33].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kMagicka, ColorType::FlashColor));
+		args[34].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::BarColor));
+		args[35].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::PhantomColor));
+		args[36].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::BackgroundColor));
+		args[37].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::PenaltyColor));
+		args[38].SetNumber(hudMenu->GetBarColor(_refHandle, RE::ActorValue::kStamina, ColorType::FlashColor));
+		args[39].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::BarColor));
+		args[40].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::PhantomColor));
+		args[41].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::BackgroundColor));
+		args[42].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::PenaltyColor));
+		args[43].SetNumber(hudMenu->GetSpecialBarColor(_refHandle, ColorType::FlashColor));
 		_object.Invoke("loadConfig", nullptr, args, 44);
 	}
 }

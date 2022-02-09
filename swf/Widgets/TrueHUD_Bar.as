@@ -512,7 +512,7 @@ class Widgets.TrueHUD_Bar extends MovieClip
 
         if (bHasShapeMask)
         {
-            widthTimeline.to(Mask, widthTimelineDuration, {_width:a_width, ease:Sine.easeIn}, 0)
+            widthTimeline.to(Mask, widthTimelineDuration, {_width:a_width, ease:Sine.easeIn}, 0);
         }
 
         widthTimeline.to(Bar, widthTimelineDuration, {_xscale:a_width, ease:Sine.easeIn}, 0)

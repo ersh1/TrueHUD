@@ -8,6 +8,7 @@
 #include "Widgets/FloatingText.h"
 #include "Offsets.h"
 #include <chrono>
+#include <unordered_set>
 
 namespace std
 {
@@ -28,8 +29,7 @@ namespace Scaleform
 	{
 	private:
 		using Super = RE::IMenu;
-		using PlayerWidgetBarType = ::TRUEHUD_API::PlayerWidgetBarType;
-		using PlayerWidgetBarColorType = ::TRUEHUD_API::PlayerWidgetBarColorType;
+		using BarColorType = ::TRUEHUD_API::BarColorType;
 		using WidgetRemovalMode = TRUEHUD_API::WidgetRemovalMode;
 		using WidgetBase = TRUEHUD_API::WidgetBase;
 		using APIResultCallback = TRUEHUD_API::APIResultCallback;
@@ -41,6 +41,34 @@ namespace Scaleform
 			kStandaloneShoutIndicator = 2,
 			kPlayerWidget = 3,
 			kFloatingText = 4
+		};
+
+		enum class BarType : uint8_t
+		{
+			kHealth,
+			kMagicka,
+			kStamina,
+			kSpecial
+		};
+
+		struct BarColorOverride
+		{
+			uint32_t barColor = 0xFFFFFF;
+			uint32_t phantomColor = 0xFFFFFF;
+			uint32_t backgroundColor = 0xFFFFFF;
+			uint32_t penaltyColor = 0xFFFFFF;
+			uint32_t flashColor = 0xFFFFFF;
+
+			bool bOverrideBarColor = false;
+			bool bOverridePhantomColor = false;
+			bool bOverrideBackgroundColor = false;
+			bool bOverridePenaltyColor = false;
+			bool bOverrideFlashColor = false;
+
+			bool IsEmpty() const;
+			bool GetColor(BarColorType a_colorType, uint32_t& a_outColor) const;
+			void SetOverride(BarColorType a_colorType, uint32_t a_color);
+			void RemoveOverride(BarColorType a_colorType);
 		};
 
 	public:
@@ -69,9 +97,6 @@ namespace Scaleform
 
 		bool AddPlayerWidget();
 		bool RemovePlayerWidget();
-		void OverridePlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType, uint32_t a_color);
-		void RevertPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType);
-		uint32_t GetPlayerWidgetBarColor(PlayerWidgetBarType a_playerWidgetBarType, PlayerWidgetBarColorType a_colorType) const;
 		void UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow);
 
 		bool AddFloatingWorldTextWidget(std::string a_text, uint32_t a_color, float a_duration, bool a_bSpecial, RE::NiPoint3 a_worldPosition);
@@ -84,6 +109,14 @@ namespace Scaleform
 
 		void FlashActorValue(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, bool a_bLong);
 		void FlashActorSpecialBar(RE::ObjectRefHandle a_actorHandle, bool a_bLong);
+
+		void OverrideBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType, uint32_t a_color);
+		void OverrideSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType, uint32_t a_color);
+		void RevertBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType);
+		void RevertSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType);
+		uint32_t GetBarColor(RE::ObjectRefHandle a_actorHandle, RE::ActorValue a_actorValue, BarColorType a_colorType) const;
+		uint32_t GetSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType) const;
+		uint32_t GetDefaultColor(BarType a_barType, BarColorType a_barColorType) const;
 
 		void ToggleMenu(bool a_enable);
 		void SetCartMode(bool a_enable);
@@ -206,6 +239,7 @@ namespace Scaleform
 		void ProcessDelegate(float a_deltaTime);
 		void Update(float a_deltaTime);
 
+		void UpdateColors();
 		void UpdateVisibility();
 
 		bool AddBossInfoBarWidget(RE::ObjectRefHandle a_actorHandle);
@@ -236,7 +270,8 @@ namespace Scaleform
 
 		std::list<RE::ObjectRefHandle> _bossQueue;
 
-		std::unordered_map<PlayerWidgetBarType, std::unordered_map<PlayerWidgetBarColorType, uint32_t>> _playerWidgetOverriddenColors;
+		std::unordered_map<RE::ObjectRefHandle, std::unordered_map<BarType, BarColorOverride>> _colorOverrides;
+		std::unordered_set<RE::ObjectRefHandle> _pendingColorChanges;
 
 		bool _bVanillaEnemyHealthAlphaSaved = false;
 		bool _bVanillaEnemyHealthHidden = false;

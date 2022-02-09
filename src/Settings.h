@@ -269,10 +269,13 @@ struct Settings
 	static inline uint32_t uSpecialFlashColor = 0xFFA600;
 
 	static inline uint32_t uDefaultColor = 0xCBCBCB;
+	static inline uint32_t uDefaultColorOutline = 0xCBCBCB;
 	static inline uint32_t uWeakerColor = 0x1E88E5;
-	static inline uint32_t uWeakerColorOutline = 0x666666;
+	static inline uint32_t uWeakerColorOutline = 0x1E88E5;
 	static inline uint32_t uStrongerColor = 0xCC2929;
+	static inline uint32_t uStrongerColorOutline = 0xCC2929;
 	static inline uint32_t uTeammateColor = 0x66CC33;
+	static inline uint32_t uTeammateColorOutline = 0x66CC33;
 
 	// Non-MCM
 	static inline std::unordered_set<RE::TESRace*> bossRaces;
@@ -286,5 +289,6 @@ struct Settings
 	static inline RE::TESGlobal* glob_survivalHealthPenaltyPercent = nullptr;
 	static inline RE::TESGlobal* glob_survivalMagickaPenaltyPercent = nullptr;
 	static inline RE::TESGlobal* glob_survivalStaminaPenaltyPercent = nullptr;
+	static inline RE::TESGlobal* glob_trueHUDVersion = nullptr;
 	static inline RE::TESGlobal* glob_trueHUDSpecialResourceBars = nullptr;
 };
