@@ -308,6 +308,7 @@ void Settings::ReadSettings()
 		ReadUInt32Setting(mcm, "PlayerWidget", "uPlayerWidgetShoutIndicatorMode", (uint32_t&)uPlayerWidgetShoutIndicatorMode);
 		ReadUInt32Setting(mcm, "PlayerWidget", "uPlayerWidgetSpecialMode", (uint32_t&)uPlayerWidgetSpecialMode);
 		ReadBoolSetting(mcm, "PlayerWidget", "bPlayerWidgetHideVanillaBars", bPlayerWidgetHideVanillaBars);
+		ReadBoolSetting(mcm, "PlayerWidget", "bPlayerWidgetForceHideVanillaBars", bPlayerWidgetForceHideVanillaBars);
 		ReadBoolSetting(mcm, "PlayerWidget", "bPlayerWidgetDisplayEnchantmentChargeMeter", bPlayerWidgetDisplayEnchantmentChargeMeter);
 		ReadBoolSetting(mcm, "PlayerWidget", "bPlayerWidgetDisplayMountStamina", bPlayerWidgetDisplayMountStamina);
 		ReadFloatSetting(mcm, "PlayerWidget", "fPlayerWidgetPhantomDuration", fPlayerWidgetPhantomDuration);
@@ -364,13 +365,13 @@ void Settings::ReadSettings()
 		ReadColorStringSetting(mcm, "Colors", "sSpecialFlashColor", uSpecialFlashColor);
 
 		ReadColorStringSetting(mcm, "Colors", "sDefaultColor", uDefaultColor);
-		ReadColorStringSetting(mcm, "Colors", "uDefaultColorOutline", uDefaultColorOutline);
+		ReadColorStringSetting(mcm, "Colors", "sDefaultColorOutline", uDefaultColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sWeakerColor", uWeakerColor);
 		ReadColorStringSetting(mcm, "Colors", "sWeakerColorOutline", uWeakerColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sStrongerColor", uStrongerColor);
-		ReadColorStringSetting(mcm, "Colors", "uStrongerColorOutline", uStrongerColorOutline);
+		ReadColorStringSetting(mcm, "Colors", "sStrongerColorOutline", uStrongerColorOutline);
 		ReadColorStringSetting(mcm, "Colors", "sTeammateColor", uTeammateColor);
-		ReadColorStringSetting(mcm, "Colors", "uTeammateColorOutline", uTeammateColorOutline);
+		ReadColorStringSetting(mcm, "Colors", "sTeammateColorOutline", uTeammateColorOutline);
 	};
 
 	logger::info("Reading MCM .ini...");

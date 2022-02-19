@@ -181,6 +181,7 @@ struct Settings
 	static inline PlayerWidgetDisplayMode uPlayerWidgetShoutIndicatorMode = PlayerWidgetDisplayMode::kNever;
 	static inline PlayerWidgetDisplayMode uPlayerWidgetSpecialMode = PlayerWidgetDisplayMode::kDynamic;
 	static inline bool bPlayerWidgetHideVanillaBars = true;
+	static inline bool bPlayerWidgetForceHideVanillaBars = false;
 	static inline bool bPlayerWidgetDisplayEnchantmentChargeMeter = true;
 	static inline bool bPlayerWidgetDisplayMountStamina = true;
 	static inline float fPlayerWidgetPhantomDuration = 0.75f;

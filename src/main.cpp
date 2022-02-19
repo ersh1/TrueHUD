@@ -24,6 +24,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		HUDHandler::GetSingleton()->OnPreLoadGame();
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
+	case SKSE::MessagingInterface::kNewGame:
 		Settings::OnPostLoadGame();
 		break;
 	}

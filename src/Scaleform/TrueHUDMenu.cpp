@@ -17,6 +17,11 @@ namespace Scaleform
 		}
 	}
 
+	bool TrueHUDMenu::IsOpen() const
+	{
+		return _bIsOpen;
+	}
+
 	RE::GPtr<RE::GFxMovieView> TrueHUDMenu::GetView() const
 	{
 		return _view;
@@ -852,6 +857,7 @@ namespace Scaleform
 
 	void TrueHUDMenu::OnOpen()
 	{
+		_bIsOpen = true;
 	}
 
 	void TrueHUDMenu::OnClose()
@@ -867,6 +873,8 @@ namespace Scaleform
 			auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
 			hud.get()->uiMovie->SetVariable("HUDMovieBaseInstance.CompassShoutMeterHolder._alpha", _savedCompassAlpha);
 		}
+
+		_bIsOpen = false;
 	}
 
 	void TrueHUDMenu::ProcessDelegate(float a_deltaTime)

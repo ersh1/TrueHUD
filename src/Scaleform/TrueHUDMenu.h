@@ -77,6 +77,8 @@ namespace Scaleform
 
 		static void Register();
 
+		bool IsOpen() const;
+
 		RE::GPtr<RE::GFxMovieView> GetView() const;
 
 		void SetTarget(RE::ObjectRefHandle a_actorHandle);
@@ -181,6 +183,9 @@ namespace Scaleform
 			using Type = RE::UI_MESSAGE_TYPE;
 
 			switch (*a_message.type) {
+			case Type::kShow:
+				OnOpen();
+				return Super::ProcessMessage(a_message);
 			case Type::kHide:
 				OnClose();
 				return Super::ProcessMessage(a_message);
@@ -247,6 +252,8 @@ namespace Scaleform
 		void RefreshBossBarIndexes(int32_t a_removedIndex);
 		void UpdateBossQueue();
 		void AddToDepthsArray(std::shared_ptr<TRUEHUD_API::WidgetBase> a_widget, uint32_t a_widgetType, RE::GFxValue& a_array);
+
+		bool _bIsOpen = false;
 
 		uint8_t _hideCount = 0;
 		bool _bMenuToggled = false;

@@ -18,6 +18,14 @@ namespace Scaleform
 		}
 
 		UpdateInfo();
+
+		if (Settings::bPlayerWidgetHideVanillaBars && Settings::bPlayerWidgetForceHideVanillaBars) {
+			ToggleVanillaBars(false);
+		}
+
+		if (Settings::bPlayerWidgetDisplayEnchantmentChargeMeter && Settings::bPlayerWidgetForceHideVanillaBars) {
+			ToggleVanillaEnchantmentChargeMeters(false);
+		}
 	}
 
 	void PlayerWidget::Initialize()
@@ -319,34 +327,38 @@ namespace Scaleform
 	void PlayerWidget::ToggleVanillaBars(bool a_bEnable)
 	{
 		auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
+		auto& uiMovie = hud->uiMovie;
+		if (uiMovie) {
+			RE::GFxValue bEnable;
+			bEnable.SetBoolean(a_bEnable);
+			/*uiMovie->SetVariable("HUDMovieBaseInstance.Health._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Magica._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Stamina._visible", bEnable);*/
+			uiMovie->SetVariable("HUDMovieBaseInstance.Health.HealthMeter_mc._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Health.HealthPenaltyMeter_mc._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaMeter_mc._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaFlashInstance._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaPenaltyMeter_mc._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaMeter_mc._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaFlashInstance._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaPenaltyMeter_mc._visible", bEnable);
 
-		RE::GFxValue bEnable;
-		bEnable.SetBoolean(a_bEnable);
-		/*hud->uiMovie->SetVariable("HUDMovieBaseInstance.Health._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Magica._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Stamina._visible", bEnable);*/
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Health.HealthMeter_mc._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Health.HealthPenaltyMeter_mc._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaMeter_mc._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaFlashInstance._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Magica.MagickaPenaltyMeter_mc._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaMeter_mc._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaFlashInstance._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.Stamina.StaminaPenaltyMeter_mc._visible", bEnable);
-
-		_bVanillaBarsHidden = !a_bEnable;
+			_bVanillaBarsHidden = !a_bEnable;
+		}		
 	}
 
 	void PlayerWidget::ToggleVanillaEnchantmentChargeMeters(bool a_bEnable)
 	{
 		auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
+		auto& uiMovie = hud->uiMovie;
+		if (uiMovie) {
+			RE::GFxValue bEnable;
+			bEnable.SetBoolean(a_bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.BottomLeftLockInstance._visible", bEnable);
+			uiMovie->SetVariable("HUDMovieBaseInstance.BottomRightLockInstance._visible", bEnable);
 
-		RE::GFxValue bEnable;
-		bEnable.SetBoolean(a_bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.BottomLeftLockInstance._visible", bEnable);
-		hud->uiMovie->SetVariable("HUDMovieBaseInstance.BottomRightLockInstance._visible", bEnable);
-
-		_bVanillaEnchantmentChargeMetersHidden = !a_bEnable;
+			_bVanillaEnchantmentChargeMetersHidden = !a_bEnable;
+		}		
 	}
 
 }

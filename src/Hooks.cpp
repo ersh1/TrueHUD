@@ -72,20 +72,24 @@ namespace Hooks
 
 	bool HUDHook::Invoke_ChargeMeter1(RE::GFxValue::ObjectInterface* a_this, void* a_data, RE::GFxValue* a_result, const char* a_name, const RE::GFxValue* a_args, RE::UPInt a_numArgs, bool a_isDObj)
 	{
-		if (Settings::bEnablePlayerWidget) {
+		bool bReturn = _Invoke_ChargeMeter1(a_this, a_data, a_result, a_name, a_args, a_numArgs, a_isDObj);
+
+		if (Settings::bEnablePlayerWidget && Settings::bPlayerWidgetDisplayEnchantmentChargeMeter) {
 			HUDHandler::GetSingleton()->UpdatePlayerWidgetChargeMeters(static_cast<float>(a_args[0].GetNumber()), a_args[1].GetBool(), a_args[2].GetBool(), a_args[3].GetBool());
 		}		
 
-		return _Invoke_ChargeMeter1(a_this, a_data, a_result, a_name, a_args, a_numArgs, a_isDObj);
+		return bReturn;
 	}
 
 	bool HUDHook::Invoke_ChargeMeter2(RE::GFxValue::ObjectInterface* a_this, void* a_data, RE::GFxValue* a_result, const char* a_name, const RE::GFxValue* a_args, RE::UPInt a_numArgs, bool a_isDObj)
 	{
-		if (Settings::bEnablePlayerWidget) {
+		bool bReturn = _Invoke_ChargeMeter2(a_this, a_data, a_result, a_name, a_args, a_numArgs, a_isDObj);
+
+		if (Settings::bEnablePlayerWidget && Settings::bPlayerWidgetDisplayEnchantmentChargeMeter) {
 			HUDHandler::GetSingleton()->UpdatePlayerWidgetChargeMeters(static_cast<float>(a_args[0].GetNumber()), a_args[1].GetBool(), a_args[2].GetBool(), a_args[3].GetBool());
 		}		
 
-		return _Invoke_ChargeMeter2(a_this, a_data, a_result, a_name, a_args, a_numArgs, a_isDObj);
+		return bReturn;
 	}
 
 	bool HUDHook::IsPlayerOrPlayerMount(RE::Actor* a_actor)

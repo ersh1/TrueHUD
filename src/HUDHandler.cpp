@@ -179,7 +179,7 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESHitEvent* a_event,
 							return EventResult::kContinue;
 						}
 
-						if (Settings::bEnableBossBars && CheckActorForBoss(targetActorHandle)) {
+						if (Settings::bEnableBossBars && targetActor->IsInCombat() && CheckActorForBoss(targetActorHandle)) {
 							HUDHandler::GetSingleton()->AddBossInfoBar(targetActorHandle);
 						} else if (bInfoBarsEnabled) {  // Not a boss, add a normal info bar
 							if (targetActor->IsHostileToActor(RE::PlayerCharacter::GetSingleton())) {
@@ -198,7 +198,7 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESHitEvent* a_event,
 							return EventResult::kContinue;
 						}
 
-						if (Settings::bEnableBossBars && CheckActorForBoss(causeActorHandle)) {
+						if (Settings::bEnableBossBars && causeActor->IsInCombat() && CheckActorForBoss(causeActorHandle)) {
 							HUDHandler::GetSingleton()->AddBossInfoBar(causeActorHandle);
 						} else if (bInfoBarsEnabled) {  // Not a boss, add a normal info bar
 							if (causeActor->IsHostileToActor(RE::PlayerCharacter::GetSingleton())) {
@@ -252,27 +252,31 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a
 
 void HUDHandler::OpenTrueHUDMenu()
 {
-	//if (!IsHUDMenuTDMOpen()) {
+	if (!IsTrueHUDMenuOpen()) {
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(TrueHUDMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
 		}
-	//}
+	}
 }
 
 void HUDHandler::CloseTrueHUDMenu()
 {
-	//if (IsHUDMenuTDMOpen()) {
+	if (IsTrueHUDMenuOpen()) {
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(TrueHUDMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
 		}
-	//}
+	}
 }
 
 bool HUDHandler::IsTrueHUDMenuOpen()
 {
-	return static_cast<bool>(GetTrueHUDMenu());
+	auto trueHUD = GetTrueHUDMenu();
+	if (trueHUD) {
+		return trueHUD->IsOpen();
+	}
+	return false;
 }
 
 RE::GPtr<Scaleform::TrueHUDMenu> HUDHandler::GetTrueHUDMenu()
@@ -408,7 +412,7 @@ void HUDHandler::RemovePlayerWidget()
 
 void HUDHandler::UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow)
 {
-	if (!Settings::bEnablePlayerWidget) {
+	if (!Settings::bEnablePlayerWidget || !Settings::bPlayerWidgetDisplayEnchantmentChargeMeter) {
 		return;
 	}
 
