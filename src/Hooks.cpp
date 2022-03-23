@@ -50,6 +50,24 @@ namespace Hooks
 		}
 	}
 
+	void HUDHook::AddObjectToContainer(RE::Actor* a_this, RE::TESBoundObject* a_object, RE::ExtraDataList* a_extraList, int32_t a_count, RE::TESObjectREFR* a_fromRefr)
+	{
+		_AddObjectToContainer(a_this, a_object, a_extraList, a_count, a_fromRefr);
+
+		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
+			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_extraList ? a_extraList->GetDisplayName(a_object) : a_object->GetName(), a_count);	
+		}
+	}
+
+	void HUDHook::PickUpObject(RE::Actor* a_this, RE::TESObjectREFR* a_object, uint32_t a_count, bool a_arg3, bool a_playSound)
+	{
+		_PickUpObject(a_this, a_object, a_count, a_arg3, a_playSound);
+
+		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
+			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object->GetBaseObject(), a_object->GetDisplayFullName(), a_count);	
+		}
+	}
+
 	void HUDHook::AddMessage_Flash(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::HUDData* a_data)
 	{
 		_AddMessage_Flash(a_this, a_menuName, a_type, a_data);
@@ -90,6 +108,134 @@ namespace Hooks
 		}		
 
 		return bReturn;
+	}
+
+	void HUDHook::AddItem_AddItemFunctor(RE::TESObjectREFR* a_this, RE::TESObjectREFR* a_object, int32_t a_count, bool a4, bool a5)
+	{
+		_AddItem_AddItemFunctor(a_this, a_object, a_count, a4, a5);
+
+		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
+			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object->GetBaseObject(), a_object->GetDisplayFullName(), a_count);
+		}
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_AddItemFunctor(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot) {
+			if (a_object->GetPlayable()) {
+				//HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count); // no need as it already triggers the hook placed at PlayerCharacter::AddObjectToContainer
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {  // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_AddItemFunctor(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_ActivateFlora1(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot) {
+			if (a_object->GetPlayable()) {
+				//HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count); // no need as it already triggers the hook placed at PlayerCharacter::AddObjectToContainer
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {  // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_ActivateFlora1(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_ActivateFlora2(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot) {
+			if (a_object->GetPlayable()) {
+				HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count);
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {  // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_ActivateFlora2(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_ConstructibleObjectMenu(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot && !Settings::bRecentLootHideInCraftingMenus) {
+			if (a_object->GetPlayable()) {
+				//HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count); // no need as it already triggers the hook placed at PlayerCharacter::AddObjectToContainer
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {                                   // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_ConstructibleObjectMenu(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_AlchemyMenu(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot && !Settings::bRecentLootHideInCraftingMenus) {
+			if (a_object->GetPlayable()) {
+				HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count);
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {                                   // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_AlchemyMenu(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_EnchantConstructMenu(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot && !Settings::bRecentLootHideInCraftingMenus) {
+			if (a_object->GetPlayable()) {
+				HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count);
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {                                   // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_EnchantConstructMenu(a_object, a_count, a3, a4, a5);
+	}
+
+	void HUDHook::PlayPickupSoundAndMessage_AddItem(RE::TESBoundObject* a_object, int32_t a_count, bool a3, bool a4, void* a5)
+	{
+		if (Settings::bEnableRecentLoot) {
+			if (a_object->GetPlayable()) {
+				//HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count); // no need as it already triggers the hook placed at PlayerCharacter::AddObjectToContainer
+				if (Settings::bRecentLootHideVanillaMessage) {  // Skip original call
+					if (a4) {                                   // Play pickup sound
+						RE::PlayerCharacter::GetSingleton()->PlayPickUpSound(a_object, a3, 0);
+					}
+					return;
+				}
+			}
+		}
+
+		_PlayPickupSoundAndMessage_AddItem(a_object, a_count, a3, a4, a5);
 	}
 
 	bool HUDHook::IsPlayerOrPlayerMount(RE::Actor* a_actor)

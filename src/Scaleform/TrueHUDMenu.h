@@ -6,6 +6,7 @@
 #include "Widgets/ShoutIndicator.h"
 #include "Widgets/PlayerWidget.h"
 #include "Widgets/FloatingText.h"
+#include "Widgets/RecentLoot.h"
 #include "Offsets.h"
 #include <chrono>
 #include <unordered_set>
@@ -25,6 +26,40 @@ namespace std
 
 namespace Scaleform
 {
+	class DebugLine
+	{
+	public:
+		DebugLine(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, uint32_t a_color, float a_thickness, float a_duration) :
+			start(a_start),
+			end(a_end),
+			color(a_color),
+			thickness(a_thickness),
+			duration(a_duration)
+		{}
+
+		RE::NiPoint3 start;
+		RE::NiPoint3 end;
+		uint32_t color;
+		float thickness;
+		float duration;
+	};
+
+	class DebugPoint
+	{
+	public:
+		DebugPoint(const RE::NiPoint3& a_position, uint32_t a_color, float a_size, float a_duration) :
+			position(a_position),
+			color(a_color),
+			size(a_size),
+			duration(a_duration)
+		{}
+
+		RE::NiPoint3 position;
+		uint32_t color;
+		float size;
+		float duration;
+	};
+
 	class TrueHUDMenu : public RE::IMenu
 	{
 	private:
@@ -40,7 +75,8 @@ namespace Scaleform
 			kBossBar = 1,
 			kStandaloneShoutIndicator = 2,
 			kPlayerWidget = 3,
-			kFloatingText = 4
+			kRecentLootWidget = 4,
+			kFloatingText = 5
 		};
 
 		enum class BarType : uint8_t
@@ -72,6 +108,13 @@ namespace Scaleform
 		};
 
 	public:
+		enum class MenuVisibilityMode : uint8_t
+		{
+			kHidden,
+			kPartial,
+			kVisible
+		};
+
 		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
 		static constexpr std::int8_t SortPriority() noexcept { return SORT_PRIORITY; }
 
@@ -101,6 +144,10 @@ namespace Scaleform
 		bool RemovePlayerWidget();
 		void UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, bool a_bLeftHand, bool a_bShow);
 
+		bool AddRecentLootWidget();
+		bool RemoveRecentLootWidget();
+		void AddRecentLootMessage(RE::TESBoundObject* a_object, std::string_view a_name, uint32_t a_count);
+
 		bool AddFloatingWorldTextWidget(std::string a_text, uint32_t a_color, float a_duration, bool a_bSpecial, RE::NiPoint3 a_worldPosition);
 		bool AddFloatingScreenTextWidget(std::string a_text, uint32_t a_color, float a_duration, bool a_bSpecial, RE::NiPoint2 a_screenPosition);
 
@@ -120,7 +167,18 @@ namespace Scaleform
 		uint32_t GetSpecialBarColor(RE::ObjectRefHandle a_actorHandle, BarColorType a_colorType) const;
 		uint32_t GetDefaultColor(BarType a_barType, BarColorType a_barColorType) const;
 
-		void ToggleMenu(bool a_enable);
+		void DrawLine(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawPoint(const RE::NiPoint3& a_position, float a_size, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF);
+		void DrawArrow(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_size = 10.f, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawBox(const RE::NiPoint3& a_center, const RE::NiPoint3& a_extent, const RE::NiQuaternion& a_rotation, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawHalfCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawSphere(const RE::NiPoint3& a_origin, float a_radius, uint32_t a_segments = 16, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawCylinder(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_radius, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawCone(const RE::NiPoint3& a_origin, const RE::NiPoint3& a_direction, float a_length, float a_angleWidth, float a_angleHeight, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+		void DrawCapsule(const RE::NiPoint3& a_origin, float a_halfHeight, float a_radius, const RE::NiQuaternion& a_rotation, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f);
+
+		void SetMenuVisibilityMode(MenuVisibilityMode a_mode);
 		void SetCartMode(bool a_enable);
 
 		void UpdateSettings();
@@ -244,6 +302,8 @@ namespace Scaleform
 		void ProcessDelegate(float a_deltaTime);
 		void Update(float a_deltaTime);
 
+		void CacheData();
+
 		void UpdateColors();
 		void UpdateVisibility();
 
@@ -253,16 +313,34 @@ namespace Scaleform
 		void UpdateBossQueue();
 		void AddToDepthsArray(std::shared_ptr<TRUEHUD_API::WidgetBase> a_widget, uint32_t a_widgetType, RE::GFxValue& a_array);
 
+		void UpdateDebugDraw(float a_deltaTime);
+
+		void DrawLine2D(RE::NiPoint2& a_start, RE::NiPoint2& a_end, uint32_t a_color, float a_thickness);
+		void DrawPoint2D(RE::NiPoint2& a_position, uint32_t a_color, float a_size);
+		void DrawLine3D(RE::NiPoint3& a_start, RE::NiPoint3& a_end, uint32_t a_color, float a_thickness);
+		void DrawPoint3D(RE::NiPoint3& a_position, uint32_t a_color, float a_size);
+		void ClearLines();
+
+		RE::NiPoint2 WorldToScreen(const RE::NiPoint3& a_worldPos) const;
+
+		void ClampToScreen(RE::NiPoint2& a_point);
+
+		bool IsOnScreen(RE::NiPoint2& a_start, RE::NiPoint2& a_end) const;
+		bool IsOnScreen(RE::NiPoint2& a_point) const;
+
 		bool _bIsOpen = false;
 
-		uint8_t _hideCount = 0;
-		bool _bMenuToggled = false;
+		bool _bCachedData = false;
+		RE::NiPoint2 _screenRes;
+
+		MenuVisibilityMode _menuVisibilityMode = MenuVisibilityMode::kVisible;
 		bool _bCartMode = false;
 		
 		std::unordered_map<RE::ObjectRefHandle, std::shared_ptr<ActorInfoBar>> _actorInfoBarMap;
 		std::unordered_map<RE::ObjectRefHandle, std::shared_ptr<BossInfoBar>> _bossInfoBarMap;
 		std::shared_ptr<ShoutIndicator> _shoutIndicator;
 		std::shared_ptr<PlayerWidget> _playerWidget;
+		std::shared_ptr<RecentLoot> _recentLoot;
 		std::unordered_map<uint32_t, std::shared_ptr<FloatingText>> _floatingTextMap;
 		uint32_t _nextFloatingTextID = 0;
 
@@ -280,6 +358,9 @@ namespace Scaleform
 		std::unordered_map<RE::ObjectRefHandle, std::unordered_map<BarType, BarColorOverride>> _colorOverrides;
 		std::unordered_set<RE::ObjectRefHandle> _pendingColorChanges;
 
+		std::vector<std::unique_ptr<DebugLine>> _linesToDraw;
+		std::vector<std::unique_ptr<DebugPoint>> _pointsToDraw;
+
 		bool _bVanillaEnemyHealthAlphaSaved = false;
 		bool _bVanillaEnemyHealthHidden = false;
 		RE::GFxValue _savedVanillaEnemyHealthAlpha;
@@ -290,7 +371,7 @@ namespace Scaleform
 		bool _bCompassAlphaSaved = false;
 		RE::GFxValue _savedCompassAlpha;
 
-		constexpr static std::string_view FILE_NAME{ "TrueHUD/TrueHUD" };
+		constexpr static std::string_view FILE_NAME{ "TrueHUD" };
 		constexpr static std::string_view MENU_NAME{ "TrueHUD" };
 		constexpr static std::int8_t SORT_PRIORITY{ 0 };
 

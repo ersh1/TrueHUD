@@ -32,6 +32,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/Widgets/InfoBarBase.h"
 	"${SOURCE_DIR}/Widgets/PlayerWidget.cpp"
 	"${SOURCE_DIR}/Widgets/PlayerWidget.h"
+	"${SOURCE_DIR}/Widgets/RecentLoot.cpp"
+	"${SOURCE_DIR}/Widgets/RecentLoot.h"
 	"${SOURCE_DIR}/Widgets/ShoutIndicator.cpp"
 	"${SOURCE_DIR}/Widgets/ShoutIndicator.h"
 )

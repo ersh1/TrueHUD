@@ -220,16 +220,15 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESHitEvent* a_event,
 	return EventResult::kContinue;
 }
 
-// On HUD menu open/close - open/close the plugin's HUD menu
 HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 {
-	if (a_event) {
-		if (a_event->menuName == RE::HUDMenu::MENU_NAME) {
-			if (a_event->opening) {
-				HUDHandler::GetSingleton()->OpenTrueHUDMenu();
-			} else {
-				HUDHandler::GetSingleton()->CloseTrueHUDMenu();
-			}
+	using ContextID = RE::UserEvents::INPUT_CONTEXT_ID;
+	// On HUD menu open/close - open/close the plugin's HUD menu
+	if (a_event && a_event->menuName == RE::HUDMenu::MENU_NAME) {
+		if (a_event->opening) {
+			HUDHandler::GetSingleton()->OpenTrueHUDMenu();
+		} else {
+			HUDHandler::GetSingleton()->CloseTrueHUDMenu();
 		}
 	}
 
@@ -237,13 +236,24 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a
 	auto controlMap = RE::ControlMap::GetSingleton();
 	if (controlMap) {
 		auto& priorityStack = controlMap->contextPriorityStack;
-		if (priorityStack.empty() ||
-			(priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay &&
-				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kFavorites &&
-				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kConsole)) {
-			HUDHandler::GetSingleton()->ToggleMenu(false);
+		if (priorityStack.empty()) {
+			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kHidden);
+		} else if (priorityStack.back() == ContextID::kGameplay ||
+				   priorityStack.back() == ContextID::kFavorites ||
+				   priorityStack.back() == ContextID::kConsole) {
+			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kVisible);
+		} else if ((priorityStack.back() == ContextID::kCursor ||
+					   priorityStack.back() == ContextID::kItemMenu ||
+					   priorityStack.back() == ContextID::kMenuMode) &&
+				   (RE::UI::GetSingleton()->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
+					   !Settings::bRecentLootHideInCraftingMenus && RE::UI::GetSingleton()->IsMenuOpen(RE::CraftingMenu::MENU_NAME) ||
+					   !Settings::bRecentLootHideInInventoryMenus && (RE::UI::GetSingleton()->IsMenuOpen(RE::BarterMenu::MENU_NAME) ||
+																		 RE::UI::GetSingleton()->IsMenuOpen(RE::ContainerMenu::MENU_NAME) ||
+																		 RE::UI::GetSingleton()->IsMenuOpen(RE::GiftMenu::MENU_NAME) ||
+																		 RE::UI::GetSingleton()->IsMenuOpen(RE::InventoryMenu::MENU_NAME)))) {
+			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kPartial);
 		} else {
-			HUDHandler::GetSingleton()->ToggleMenu(true);
+			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kHidden);
 		}
 	}
 
@@ -326,6 +336,11 @@ void HUDHandler::SetSoftTarget(RE::ObjectRefHandle a_actorHandle)
 	_currentSoftTarget = a_actorHandle;
 }
 
+bool HUDHandler::HasActorInfoBar(RE::ObjectRefHandle a_actorHandle)
+{
+	return GetTrueHUDMenu()->HasActorInfoBar(a_actorHandle);
+}
+
 void HUDHandler::AddActorInfoBar(RE::ObjectRefHandle a_actorHandle)
 {
 	if (!Settings::bEnableActorInfoBars) {
@@ -350,6 +365,11 @@ void HUDHandler::RemoveActorInfoBar(RE::ObjectRefHandle a_actorHandle, WidgetRem
 			a_menu.RemoveActorInfoBar(a_actorHandle, a_removalMode);
 		});
 	}
+}
+
+bool HUDHandler::HasBossInfoBar(RE::ObjectRefHandle a_actorHandle)
+{
+	return GetTrueHUDMenu()->HasBossInfoBar(a_actorHandle);
 }
 
 void HUDHandler::AddBossInfoBar(RE::ObjectRefHandle a_actorHandle)
@@ -418,6 +438,48 @@ void HUDHandler::UpdatePlayerWidgetChargeMeters(float a_percent, bool a_bForce, 
 
 	AddHUDTask([a_percent, a_bForce, a_bLeftHand, a_bShow](TrueHUDMenu& a_menu) {
 		a_menu.UpdatePlayerWidgetChargeMeters(a_percent, a_bForce, a_bLeftHand, a_bShow);
+	});
+}
+
+void HUDHandler::AddRecentLootWidget()
+{
+	if (!Settings::bEnableRecentLoot) {
+		return;
+	}
+
+	AddHUDTask([](TrueHUDMenu& a_menu) {
+		a_menu.AddRecentLootWidget();
+	});
+}
+
+void HUDHandler::RemoveRecentLootWidget()
+{
+	AddHUDTask([](TrueHUDMenu& a_menu) {
+		a_menu.RemoveRecentLootWidget();
+	});
+}
+
+void HUDHandler::AddRecentLootMessage(RE::TESBoundObject* a_object, std::string_view a_name, uint32_t a_count)
+{
+	if (!Settings::bEnableRecentLoot) {
+		return;
+	}
+
+	// Don't show message when those menus are open
+	if (Settings::bRecentLootHideInInventoryMenus &&
+		(RE::UI::GetSingleton()->IsMenuOpen(RE::BarterMenu::MENU_NAME) ||
+			RE::UI::GetSingleton()->IsMenuOpen(RE::ContainerMenu::MENU_NAME) ||
+			RE::UI::GetSingleton()->IsMenuOpen(RE::GiftMenu::MENU_NAME))) {
+		return;
+	}
+
+	if (Settings::bRecentLootHideInCraftingMenus &&
+		RE::UI::GetSingleton()->IsMenuOpen(RE::CraftingMenu::MENU_NAME)) {
+		return;
+	}
+
+	AddHUDTask([a_object, a_name, a_count](TrueHUDMenu& a_menu) {
+		a_menu.AddRecentLootMessage(a_object, a_name, a_count);
 	});
 }
 
@@ -527,10 +589,80 @@ void HUDHandler::FlashActorSpecialBar(RE::ObjectRefHandle a_actorHandle, bool a_
 	});
 }
 
-void HUDHandler::ToggleMenu(bool a_enable)
+void HUDHandler::DrawLine(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_duration, uint32_t a_color, float a_thickness)
 {
-	AddHUDTask([a_enable](TrueHUDMenu& a_menu) {
-		a_menu.ToggleMenu(a_enable);
+	AddHUDTask([a_start, a_end, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawLine(a_start, a_end, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawPoint(const RE::NiPoint3& a_position, float a_size, float a_duration, uint32_t a_color)
+{
+	AddHUDTask([a_position, a_size, a_duration, a_color](TrueHUDMenu& a_menu) {
+		a_menu.DrawPoint(a_position, a_size, a_duration, a_color);
+	});
+}
+
+void HUDHandler::DrawArrow(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_size, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_start, a_end, a_size, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawArrow(a_start, a_end, a_size, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawBox(const RE::NiPoint3& a_center, const RE::NiPoint3& a_extent, const RE::NiQuaternion& a_rotation, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_center, a_extent, a_rotation, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawBox(a_center, a_extent, a_rotation, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawCircle(a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawHalfCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawHalfCircle(a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawSphere(const RE::NiPoint3& a_origin, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_origin, a_radius, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawSphere(a_origin, a_radius, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawCylinder(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_start, a_end, a_radius, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawCylinder(a_start, a_end, a_radius, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawCone(const RE::NiPoint3& a_origin, const RE::NiPoint3& a_direction, float a_length, float a_angleWidth, float a_angleHeight, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_origin, a_direction, a_length, a_angleWidth, a_angleHeight, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawCone(a_origin, a_direction, a_length, a_angleWidth, a_angleHeight, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::DrawCapsule(const RE::NiPoint3& a_origin, float a_halfHeight, float a_radius, const RE::NiQuaternion& a_rotation, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_origin, a_halfHeight, a_radius, a_rotation, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawCapsule(a_origin, a_halfHeight, a_radius, a_rotation, a_duration, a_color, a_thickness);
+	});
+}
+
+void HUDHandler::SetMenuVisibilityMode(MenuVisibilityMode a_mode)
+{
+	AddHUDTask([a_mode](TrueHUDMenu& a_menu) {
+		a_menu.SetMenuVisibilityMode(a_mode);
 	});
 }
 

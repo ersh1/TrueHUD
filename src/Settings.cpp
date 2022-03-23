@@ -229,6 +229,7 @@ void Settings::ReadSettings()
 		ReadBoolSetting(mcm, "General", "bEnableActorInfoBars", bEnableActorInfoBars);
 		ReadBoolSetting(mcm, "General", "bEnableBossBars", bEnableBossBars);
 		ReadBoolSetting(mcm, "General", "bEnablePlayerWidget", bEnablePlayerWidget);
+		ReadBoolSetting(mcm, "General", "bEnableRecentLoot", bEnableRecentLoot);
 		ReadBoolSetting(mcm, "General", "bEnableFloatingText", bEnableFloatingText);
 		ReadBoolSetting(mcm, "General", "bHideVanillaTargetBar", bHideVanillaTargetBar);
 
@@ -335,11 +336,25 @@ void Settings::ReadSettings()
 		ReadFloatSetting(mcm, "PlayerWidget", "fPlayerWidgetEnchantmentChargeMeterX", fPlayerWidgetEnchantmentChargeMeterX);
 		ReadFloatSetting(mcm, "PlayerWidget", "fPlayerWidgetEnchantmentChargeMeterY", fPlayerWidgetEnchantmentChargeMeterY);
 
+		// Recent Loot
+		ReadBoolSetting(mcm, "RecentLoot", "bRecentLootHideVanillaMessage", bRecentLootHideVanillaMessage);
+		ReadBoolSetting(mcm, "RecentLoot", "bRecentLootHideInInventoryMenus", bRecentLootHideInInventoryMenus);
+		ReadBoolSetting(mcm, "RecentLoot", "bRecentLootHideInCraftingMenus", bRecentLootHideInCraftingMenus);
+		ReadUInt32Setting(mcm, "RecentLoot", "uRecentLootMaxMessageCount", uRecentLootMaxMessageCount);
+		ReadFloatSetting(mcm, "RecentLoot", "fRecentLootMessageDuration", fRecentLootMessageDuration);
+		ReadFloatSetting(mcm, "RecentLoot", "fRecentLootScale", fRecentLootScale);
+		ReadBoolSetting(mcm, "RecentLoot", "bRecentLootUseHUDOpacity", bRecentLootUseHUDOpacity);
+		ReadFloatSetting(mcm, "RecentLoot", "fRecentLootOpacity", fRecentLootOpacity);
+		ReadUInt32Setting(mcm, "RecentLoot", "uRecentLootListDirection", (uint32_t&)uRecentLootListDirection);
+		ReadFloatSetting(mcm, "RecentLoot", "fRecentLootX", fRecentLootX);
+		ReadFloatSetting(mcm, "RecentLoot", "fRecentLootY", fRecentLootY);
+
 		// Floating text
 		ReadBoolSetting(mcm, "FloatingText", "bEnableFloatingCombatText", bEnableFloatingCombatText);
 		ReadBoolSetting(mcm, "FloatingText", "bFloatingTextScaleWithDistance", bFloatingTextScaleWithDistance);
 		ReadFloatSetting(mcm, "FloatingText", "fFloatingTextScale", fFloatingTextScale);
 
+		// Colors
 		ReadColorStringSetting(mcm, "Colors", "sHealthColor", uHealthColor);
 		ReadColorStringSetting(mcm, "Colors", "sHealthPhantomColor", uHealthPhantomColor);
 		ReadColorStringSetting(mcm, "Colors", "sHealthBackgroundColor", uHealthBackgroundColor);

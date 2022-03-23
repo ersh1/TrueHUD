@@ -55,7 +55,7 @@ namespace Scaleform
 			offsetY /= def->GetHeight();
 		}
 
-		if (Settings::uMultipleBossBarsStackDirection == BossBarStackDirection::kUp) {
+		if (Settings::uMultipleBossBarsStackDirection == VerticalDirection::kUp) {
 			offsetY *= -1;
 		}
 

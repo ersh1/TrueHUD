@@ -14,12 +14,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		Settings::ReadSettings();		
 		HUDHandler::GetSingleton()->Initialize();
 		break;
-	case SKSE::MessagingInterface::kPostLoad:		
-		// Register interface request listener for other plugins
-		SKSE::GetMessagingInterface()->RegisterListener(nullptr, Messaging::HandleInterfaceRequest);
-		break;
-
-	//case SKSE::MessagingInterface::kPostPostLoad:
 	case SKSE::MessagingInterface::kPreLoadGame:
 		HUDHandler::GetSingleton()->OnPreLoadGame();
 		break;
@@ -98,14 +92,14 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 #ifndef NDEBUG
-	while (!IsDebuggerPresent()) {}
+	while (!IsDebuggerPresent()) { Sleep(100); }
 #endif
 
 	InitializeLog();
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(1 << 7);
+	SKSE::AllocTrampoline(1 << 8);
 
 	auto messaging = SKSE::GetMessagingInterface();
 	if (!messaging->RegisterListener("SKSE", MessageHandler)) {
@@ -116,4 +110,24 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	Papyrus::Register();
 
 	return true;
+}
+
+extern "C" DLLEXPORT void* SKSEAPI RequestPluginAPI(const TRUEHUD_API::InterfaceVersion a_interfaceVersion)
+{
+	auto api = Messaging::TrueHUDInterface::GetSingleton();
+
+	logger::info("TrueHUD::RequestPluginAPI called, InterfaceVersion {}", a_interfaceVersion);
+
+	switch (a_interfaceVersion) {
+	case TRUEHUD_API::InterfaceVersion::V1:
+		[[fallthrough]];
+	case TRUEHUD_API::InterfaceVersion::V2:
+		[[fallthrough]];
+	case TRUEHUD_API::InterfaceVersion::V3:
+		logger::info("TrueHUD::RequestPluginAPI returned the API singleton");
+		return static_cast<void*>(api);
+	}
+
+	logger::info("TrueHUD::RequestPluginAPI requested the wrong interface version");
+	return nullptr;
 }

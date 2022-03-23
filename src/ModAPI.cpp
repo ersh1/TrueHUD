@@ -32,11 +32,6 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::RequestPlayerWidgetBarColorsControl(SKSE::PluginHandle) noexcept
-	{
-		return APIResult::OK;
-	}
-
 	APIResult TrueHUDInterface::RequestSpecialResourceBarsControl(SKSE::PluginHandle a_modHandle) noexcept
 	{
 		const auto owner = specialResourceBarsControlOwner.load(std::memory_order::memory_order_acquire);
@@ -116,48 +111,6 @@ namespace Messaging
 		}
 	}
 
-	APIResult TrueHUDInterface::OverridePlayerWidgetBarColor(SKSE::PluginHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType, uint32_t a_color) noexcept
-	{
-		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
-		switch (a_playerWidgetBarType) {
-		case PlayerWidgetBarType::HealthBar:
-			OverrideBarColor(playerHandle, RE::ActorValue::kHealth, a_colorType, a_color);
-			break;
-		case PlayerWidgetBarType::MagickaBar:
-			OverrideBarColor(playerHandle, RE::ActorValue::kMagicka, a_colorType, a_color);
-			break;
-		case PlayerWidgetBarType::StaminaBar:
-			OverrideBarColor(playerHandle, RE::ActorValue::kStamina, a_colorType, a_color);
-			break;
-		case PlayerWidgetBarType::SpecialBar:
-			OverrideSpecialBarColor(playerHandle, a_colorType, a_color);
-			break;
-		}
-
-		return APIResult::OK;
-	}
-
-	APIResult TrueHUDInterface::RevertPlayerWidgetBarColor(SKSE::PluginHandle, PlayerWidgetBarType a_playerWidgetBarType, BarColorType a_colorType) noexcept
-	{
-		auto playerHandle = RE::PlayerCharacter::GetSingleton()->GetHandle();
-		switch (a_playerWidgetBarType) {
-		case PlayerWidgetBarType::HealthBar:
-			RevertBarColor(playerHandle, RE::ActorValue::kHealth, a_colorType);
-			break;
-		case PlayerWidgetBarType::MagickaBar:
-			RevertBarColor(playerHandle, RE::ActorValue::kMagicka, a_colorType);
-			break;
-		case PlayerWidgetBarType::StaminaBar:
-			RevertBarColor(playerHandle, RE::ActorValue::kStamina, a_colorType);
-			break;
-		case PlayerWidgetBarType::SpecialBar:
-			RevertSpecialBarColor(playerHandle, a_colorType);
-			break;
-		}
-
-		return APIResult::OK;
-	}
-
 	void TrueHUDInterface::FlashActorValue(RE::ActorHandle a_actorHandle, RE::ActorValue a_actorValue, bool a_bLong) noexcept
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
@@ -180,7 +133,7 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::RegisterSpecialResourceFunctions(SKSE::PluginHandle a_modHandle, SpecialResourceCallback&& a_getCurrentSpecialResource, SpecialResourceCallback&& a_getMaxSpecialResource, bool a_bSpecialMode) noexcept
+	APIResult TrueHUDInterface::RegisterSpecialResourceFunctions(SKSE::PluginHandle a_modHandle, SpecialResourceCallback&& a_getCurrentSpecialResource, SpecialResourceCallback&& a_getMaxSpecialResource, bool a_bSpecialMode, bool a_bDisplaySpecialForPlayer) noexcept
 	{
 		if (specialResourceBarsControlOwner != a_modHandle) {
 			return APIResult::NotOwner;
@@ -192,6 +145,7 @@ namespace Messaging
 			hudHandler->GetMaxSpecial = a_getMaxSpecialResource;
 			hudHandler->bSpecialMode = a_bSpecialMode;
 			hudHandler->bSpecialFunctionsProvided = true;
+			hudHandler->bDisplaySpecialForPlayer = a_bDisplaySpecialForPlayer;
 		}
 
 		return APIResult::OK;
@@ -253,11 +207,6 @@ namespace Messaging
 		return APIResult::OK;
 	}
 
-	APIResult TrueHUDInterface::ReleasePlayerWidgetBarColorsControl(SKSE::PluginHandle) noexcept
-	{
-		return APIResult::OK;
-	}
-
 	APIResult TrueHUDInterface::ReleaseSpecialResourceBarControl(SKSE::PluginHandle a_modHandle) noexcept
 	{
 		if (specialResourceBarsControlOwner != a_modHandle)
@@ -310,6 +259,77 @@ namespace Messaging
 		}
 	}
 
+	void TrueHUDInterface::DrawLine(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawLine(a_start, a_end, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawPoint(const RE::NiPoint3& a_position, float a_size, float a_duration, uint32_t a_color) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawPoint(a_position, a_size, a_duration, a_color);
+	}
+
+	void TrueHUDInterface::DrawArrow(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_size, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawArrow(a_start, a_end, a_size, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawBox(const RE::NiPoint3& a_center, const RE::NiPoint3& a_extent, const RE::NiQuaternion& a_rotation, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawBox(a_center, a_extent, a_rotation, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawCircle(a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawHalfCircle(const RE::NiPoint3& a_center, const RE::NiPoint3& a_x, const RE::NiPoint3& a_y, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawHalfCircle(a_center, a_x, a_y, a_radius, a_segments, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawSphere(const RE::NiPoint3& a_origin, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawSphere(a_origin, a_radius, a_segments, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawCylinder(const RE::NiPoint3& a_start, const RE::NiPoint3& a_end, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawCylinder(a_start, a_end, a_radius, a_segments, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawCone(const RE::NiPoint3& a_origin, const RE::NiPoint3& a_direction, float a_length, float a_angleWidth, float a_angleHeight, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawCone(a_origin, a_direction, a_length, a_angleWidth, a_angleHeight, a_segments, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDInterface::DrawCapsule(const RE::NiPoint3& a_origin, float a_halfHeight, float a_radius, const RE::NiQuaternion& a_rotation, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawCapsule(a_origin, a_halfHeight, a_radius, a_rotation, a_duration, a_color, a_thickness);
+	}
+
+	bool TrueHUDInterface::HasInfoBar(RE::ActorHandle a_actorHandle, bool a_bFloatingOnly /*= false*/) const noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+
+		if (a_bFloatingOnly) {
+			return hudHandler->HasActorInfoBar(a_actorHandle);
+		} else {
+			return hudHandler->HasActorInfoBar(a_actorHandle) || hudHandler->HasBossInfoBar(a_actorHandle);
+		}		
+	}
+
 	bool TrueHUDInterface::IsTargetControlTaken() const noexcept
 	{
 		return targetControlOwner.load(std::memory_order::memory_order_acquire) != SKSE::kInvalidPluginHandle;
@@ -319,97 +339,4 @@ namespace Messaging
 	{
 		return specialResourceBarsControlOwner.load(std::memory_order::memory_order_acquire) != SKSE::kInvalidPluginHandle;
 	}
-
-	void TrueHUDInterface::RegisterConsumer(const char* a_modName) noexcept
-	{
-		consumers.push_back(std::move(std::string(a_modName)));
-		logger::info(FMT_STRING("Added API consumer '{}'"), a_modName);
-	}
-
-	const TrueHUDInterface::Consumers& TrueHUDInterface::GetConsumers() const noexcept
-	{
-		return consumers;
-	}
-
-	void HandleInterfaceRequest(SKSE::MessagingInterface::Message* a_msg) noexcept
-	{
-		if (a_msg->type != 0)
-			return;
-		constexpr const auto DispatchToPlugin = [](TRUEHUD_API::PluginMessage* packet, const char* to) noexcept {
-			if (!SKSE::GetMessagingInterface()->Dispatch(0, packet, sizeof(TRUEHUD_API::PluginMessage), to))
-				logger::warn(FMT_STRING("Failed to dispatch API message to '{}'"), to ? to : "unnamed");
-		};
-
-		TRUEHUD_API::PluginMessage packet = {};
-		packet.type = TRUEHUD_API::PluginMessage::Type::Error;
-
-		if (a_msg->dataLen != sizeof(TRUEHUD_API::PluginMessage)) {
-			DispatchToPlugin(&packet, a_msg->sender);
-			return;
-		}
-
-		const auto cmd = reinterpret_cast<const TRUEHUD_API::PluginMessage*>(a_msg->data);
-		if (cmd->header != 'THUD' || cmd->type != TRUEHUD_API::PluginMessage::Type::RequestInterface) {
-			//DispatchToPlugin(&packet, a_msg->sender);
-			return;
-		}
-
-		const auto request = reinterpret_cast<const TRUEHUD_API::InterfaceRequest*>(cmd->messageData);
-		if (!(request->interfaceVersion == TRUEHUD_API::InterfaceVersion::V1 ||
-			request->interfaceVersion == TRUEHUD_API::InterfaceVersion::V2))
-		{
-			DispatchToPlugin(&packet, a_msg->sender);
-			return;
-		}
-
-		auto api = TrueHUDInterface::GetSingleton();
-		if (a_msg->sender)
-			api->RegisterConsumer(a_msg->sender);
-		else
-			logger::info("Added unnamed API consumer");
-
-		TRUEHUD_API::InterfaceContainer container = {};
-		container.interfaceVersion = request->interfaceVersion;
-
-		switch (request->interfaceVersion) {
-		case TRUEHUD_API::InterfaceVersion::V1:
-			[[fallthrough]];
-		case TRUEHUD_API::InterfaceVersion::V2:
-			container.interfaceInstance = static_cast<void*>(api);
-			break;
-		default:
-			api->RegisterConsumer(a_msg->sender);
-			return;
-		}
-
-		packet.type = TRUEHUD_API::PluginMessage::Type::InterfaceProvider;
-		packet.messageData = &container;
-		DispatchToPlugin(&packet, a_msg->sender);
-	}
-
-	bool RegisterInterfaceListenerCallback(const SKSE::MessagingInterface* skseMessaging, const char* sender, InterfaceLoaderCallback&& callback) noexcept
-	{
-		static InterfaceLoaderCallback storedCallback = callback;
-
-		return skseMessaging->RegisterListener(sender, [](SKSE::MessagingInterface::Message* msg) {
-			if (msg->type != 0) {
-				return;
-			}
-
-			if (msg->dataLen == sizeof(TRUEHUD_API::PluginMessage)) {
-				const auto resp = reinterpret_cast<TRUEHUD_API::PluginMessage*>(msg->data);
-				if (resp->type == TRUEHUD_API::PluginMessage::Type::InterfaceProvider) {
-					auto interfaceContainer = reinterpret_cast<InterfaceContainer*>(resp->messageData);
-					storedCallback(
-						interfaceContainer->interfaceInstance,
-						static_cast<uint8_t>(interfaceContainer->interfaceVersion));
-					return;
-				}
-			}
-
-			HandleInterfaceRequest(msg);
-		});
-	}
-
 }
-

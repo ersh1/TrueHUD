@@ -300,7 +300,7 @@ namespace Scaleform
 		_object.Invoke("updateData", nullptr, args, 12);
 
 		auto hudHandler = HUDHandler::GetSingleton();
-		if (hudHandler && hudHandler->bSpecialFunctionsProvided) {
+		if (hudHandler && hudHandler->bSpecialFunctionsProvided && hudHandler->bDisplaySpecialForPlayer) {
 			RE::GFxValue specialArgs[3];
 			auto maxSpecial = fmax(hudHandler->GetMaxSpecial(playerCharacter), 0.f);
 			auto currentSpecial = fmax(hudHandler->GetCurrentSpecial(playerCharacter), 0.f);

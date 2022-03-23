@@ -7,8 +7,10 @@
 	private var floatingTextWidgets: Object;
 	private var shoutIndicatorWidget: MovieClip;
 	private var playerWidget: MovieClip;
+	private var recentLootWidget: MovieClip;
 
-	private var trueHUDContainer: MovieClip;
+	private var trueHUDMainVisibilityContainer: MovieClip;
+	private var trueHUDPartialVisibilityContainer: MovieClip;
 	
 	private var customWidgets: Object;
 	private var customWidgetContainers: Object;
@@ -26,9 +28,30 @@
 		customWidgetContainers = {};
 		customWidgets = {};
 		
-		trueHUDContainer = this.createEmptyMovieClip("TrueHUD_Widgets", this.getNextHighestDepth());
-		
-		mcLoader.loadClip("TrueHUD_Widgets.swf", trueHUDContainer);
+		trueHUDMainVisibilityContainer = this.createEmptyMovieClip("TrueHUD_MainVisibilityWidgets", this.getNextHighestDepth());
+		trueHUDPartialVisibilityContainer = this.createEmptyMovieClip("TrueHUD_PartialVisibilityWidgets", this.getNextHighestDepth());
+
+		mcLoader.loadClip("TrueHUD_Widgets.swf", trueHUDMainVisibilityContainer);
+		mcLoader.loadClip("TrueHUD_Widgets.swf", trueHUDPartialVisibilityContainer);
+	}
+
+	public function SetVisibilityMode(a_visibilityMode: Number)
+	{
+		switch (a_visibilityMode)
+		{
+		case 0: // hidden
+			trueHUDMainVisibilityContainer._visible = false;
+			trueHUDPartialVisibilityContainer._visible = false;
+			break;
+		case 1: // partial
+			trueHUDMainVisibilityContainer._visible = false;
+			trueHUDPartialVisibilityContainer._visible = true;
+			break;
+		case 2: // visible
+			trueHUDMainVisibilityContainer._visible = true;
+			trueHUDPartialVisibilityContainer._visible = true;
+			break;
+		}
 	}
 
 	public function LoadCustomWidgets(a_pluginHandle: Number, a_path: String) : Boolean
@@ -38,7 +61,7 @@
 		customWidgetContainers[pluginHandle] = this.createEmptyMovieClip(pluginHandle, this.getNextHighestDepth());
 		customWidgets[pluginHandle] = {};
 
-		return mcLoader.loadClip("../" + a_path, customWidgetContainers[pluginHandle]);
+		return mcLoader.loadClip(a_path, customWidgetContainers[pluginHandle]);
 	}
 
 	public function RegisterNewWidgetType(a_pluginHandle: Number, a_widgetType: Number)
@@ -71,7 +94,10 @@
 			case 3: // player widget
 				playerWidget.swapDepths(i);
 				break;
-			case 4: // floating text
+			case 4: // recent loot widget
+				recentLootWidget.swapDepths(i);
+				break;
+			case 5: // floating text
 				var key = a_depthArray[i].id.toString();
 				floatingTextWidgets[key].swapDepths(i);
 				break;
@@ -96,7 +122,7 @@
 	public function AddInfoBarWidget(a_actorHandle: Number) : MovieClip
 	{
 		var key = a_actorHandle.toString();
-		infoBarWidgets[key] = trueHUDContainer.attachMovie("TrueHUD_InfoBar", key, trueHUDContainer.getNextHighestDepth());
+		infoBarWidgets[key] = trueHUDMainVisibilityContainer.attachMovie("TrueHUD_InfoBar", key, trueHUDMainVisibilityContainer.getNextHighestDepth());
 		return infoBarWidgets[key];
 	}
 
@@ -113,7 +139,7 @@
 	public function AddBossInfoBarWidget(a_actorHandle: Number) : MovieClip
 	{
 		var key = a_actorHandle.toString();
-		bossBarWidgets[key] = trueHUDContainer.attachMovie("TrueHUD_BossBar", key, trueHUDContainer.getNextHighestDepth());
+		bossBarWidgets[key] = trueHUDMainVisibilityContainer.attachMovie("TrueHUD_BossBar", key, trueHUDMainVisibilityContainer.getNextHighestDepth());
 
 		return bossBarWidgets[key];
 	}
@@ -131,7 +157,7 @@
 	public function AddShoutIndicatorWidget() : MovieClip
 	{
 		var key = "TrueHUD_ShoutIndicator";
-		shoutIndicatorWidget = trueHUDContainer.attachMovie("TrueHUD_ShoutIndicator", key, trueHUDContainer.getNextHighestDepth());
+		shoutIndicatorWidget = trueHUDMainVisibilityContainer.attachMovie("TrueHUD_ShoutIndicator", key, trueHUDMainVisibilityContainer.getNextHighestDepth());
 
 		return shoutIndicatorWidget;
 	}
@@ -148,7 +174,7 @@
 	public function AddPlayerWidget() : MovieClip
 	{
 		var key = "TrueHUD_PlayerWidget";
-		playerWidget = trueHUDContainer.attachMovie("TrueHUD_PlayerWidget", key, trueHUDContainer.getNextHighestDepth());
+		playerWidget = trueHUDMainVisibilityContainer.attachMovie("TrueHUD_PlayerWidget", key, trueHUDMainVisibilityContainer.getNextHighestDepth());
 
 		return playerWidget;
 	}
@@ -162,11 +188,28 @@
 		playerWidget.removeMovieClip();
 	}
 
+	public function AddRecentLootWidget() : MovieClip
+	{
+		var key = "TrueHUD_RecentLootWidget";
+		recentLootWidget = trueHUDPartialVisibilityContainer.attachMovie("TrueHUD_RecentLootList", key, trueHUDPartialVisibilityContainer.getNextHighestDepth());
+
+		return recentLootWidget;
+	}
+
+	public function RemoveRecentLootWidget() : Void
+	{
+		if (recentLootWidget == undefined)
+		{
+			return;
+		}
+		recentLootWidget.removeMovieClip();
+	}
+
 	public function AddFloatingTextWidget(a_widgetID: Number) : MovieClip
 	{
 		var key = a_widgetID.toString();
 
-		floatingTextWidgets[key] = trueHUDContainer.attachMovie("TrueHUD_FloatingText", key, trueHUDContainer.getNextHighestDepth());
+		floatingTextWidgets[key] = trueHUDMainVisibilityContainer.attachMovie("TrueHUD_FloatingText", key, trueHUDMainVisibilityContainer.getNextHighestDepth());
 
 		return floatingTextWidgets[key];
 	}

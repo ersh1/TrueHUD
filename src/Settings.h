@@ -75,7 +75,7 @@ enum class BossBarModifyHUD : std::uint32_t
 	kHideCompass = 2
 };
 
-enum class BossBarStackDirection : std::uint32_t
+enum class VerticalDirection : std::uint32_t
 {
 	kUp = 0,
 	kDown = 1,
@@ -96,6 +96,7 @@ struct Settings
 	static inline bool bEnableActorInfoBars = true;
 	static inline bool bEnableBossBars = true;
 	static inline bool bEnablePlayerWidget = true;
+	static inline bool bEnableRecentLoot = true;
 	static inline bool bEnableFloatingText = false;
 	static inline bool bHideVanillaTargetBar = false;
 
@@ -167,7 +168,7 @@ struct Settings
 	static inline bool bDisplayStandaloneShoutWidgetWhenHidingCompass = true;
 	static inline uint32_t uBossBarMaxCount = 3;
 	static inline float fMultipleBossBarsOffset = 50.f;
-	static inline BossBarStackDirection uMultipleBossBarsStackDirection = BossBarStackDirection::kDown;
+	static inline VerticalDirection uMultipleBossBarsStackDirection = VerticalDirection::kDown;
 
 	// Player Widget
 	static inline BarDirection uPlayerWidgetHealthBarDirection = BarDirection::kCenter;
@@ -207,6 +208,19 @@ struct Settings
 	static inline float fPlayerWidgetStaminaY = 0.940f;
 	static inline float fPlayerWidgetEnchantmentChargeMeterX = 0.500f;
 	static inline float fPlayerWidgetEnchantmentChargeMeterY = 0.970f;
+
+	// Recent Loot
+	static inline bool bRecentLootHideVanillaMessage = true;
+	static inline bool bRecentLootHideInInventoryMenus = false;
+	static inline bool bRecentLootHideInCraftingMenus = false;
+	static inline uint32_t uRecentLootMaxMessageCount = 10;
+	static inline float fRecentLootMessageDuration = 5.f;
+	static inline float fRecentLootScale = 1.f;
+	static inline bool bRecentLootUseHUDOpacity = true;
+	static inline float fRecentLootOpacity = 1.f;
+	static inline VerticalDirection uRecentLootListDirection = VerticalDirection::kUp;	
+	static inline float fRecentLootX = 1.f;
+	static inline float fRecentLootY = 0.85f;
 
 	// Floating text
 	static inline bool bEnableFloatingCombatText = true;
