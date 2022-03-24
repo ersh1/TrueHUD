@@ -64,13 +64,27 @@ class Widgets.TrueHUD_RecentLootList extends MovieClip
 
 	public function addMessage(a_itemName: String, a_itemCount: Number, a_iconLabel: String, a_iconColor: Number)
 	{
+		if (currentMessageArray.length > 0)
+		{
+			if (currentMessageArray[0].itemName == a_itemName && currentMessageArray[0].isJustAdded())
+			{
+				currentMessageArray[0].addCount(a_itemCount);
+				return;
+			}
+		}
+
 		if (unusedMessageArray.length == 0)
 		{
+			if (currentMessageArray.length > uRecentLootMaxMessageCount)
+			{
+				return;
+			}
+
 			// Add a new movieclip
 			var newClip = attachMovie("TrueHUD_RecentLootEntry", "LootMessage" + messageCount++, this.getNextHighestDepth());
 			newClip.loadConfig(fRecentLootMessageDuration);
 			unusedMessageArray.push(newClip);
-			trace("added new message mc");
+			//trace("added new message mc");
 		}
 		var messageClip = unusedMessageArray.pop();
 		var bInstant = currentMessageArray.length == 0;

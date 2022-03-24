@@ -27,6 +27,9 @@ class Widgets.TrueHUD_RecentLootEntry extends MovieClip
 	var iconLabel: String;
 	var iconColor: Number;
 
+	public var itemName: String;
+	public var itemCount: Number;
+
 	public function TrueHUD_RecentLootEntry() 
 	{
 		// constructor code
@@ -97,13 +100,10 @@ class Widgets.TrueHUD_RecentLootEntry extends MovieClip
 
 	public function addMessage(a_itemName: String, a_itemCount: Number, a_iconLabel: String, a_iconColor: Number, a_bInstant: Boolean)
 	{
-		if (a_itemCount > 1)
-		{
-			a_itemName = a_itemName + " (" + a_itemCount.toString() + ")";
-		}
-		ItemText.html = true;
-		ItemText.textAutoSize = "shrink";
-		ItemText.htmlText = a_itemName;
+		itemName = a_itemName;
+		itemCount = a_itemCount;
+		
+		updateName();
 
 		iconLabel = a_iconLabel;
 		iconColor = a_iconColor;
@@ -125,6 +125,24 @@ class Widgets.TrueHUD_RecentLootEntry extends MovieClip
 		bFresh = true;
 	}
 
+	public function updateName()
+	{
+		var name = itemName;
+		if (itemCount > 1)
+		{
+			name = name + " (" + itemCount.toString() + ")";
+		}
+		ItemText.html = true;
+		ItemText.textAutoSize = "shrink";
+		ItemText.htmlText = name;
+	}
+
+	public function addCount(a_itemCount: Number)
+	{
+		itemCount = itemCount + a_itemCount;
+		updateName();
+	}
+
 	public function setY(a_y: Number)
 	{
 		if (bFresh)
@@ -144,6 +162,11 @@ class Widgets.TrueHUD_RecentLootEntry extends MovieClip
 		{
 			showHideTimeline.play(fRecentLootMessageDuration);
 		}
+	}
+
+	public function isJustAdded() : Boolean
+	{
+		return showHideTimeline.time() == 0;
 	}
 
 	public function isReadyToRemove() : Boolean

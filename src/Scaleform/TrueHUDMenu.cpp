@@ -1237,8 +1237,10 @@ namespace Scaleform
 	{
 		using WidgetState = WidgetBase::WidgetState;
 
-		if (RE::UI::GetSingleton()->GameIsPaused()) {
-			return;
+		if (_menuVisibilityMode == MenuVisibilityMode::kHidden) {
+			if (RE::UI::GetSingleton()->GameIsPaused()) {
+				return;
+			}
 		}
 
 		if (Settings::bHideVanillaTargetBar || Settings::uBossBarModifyHUD == BossBarModifyHUD::kHideCompass && !_bossInfoBarMap.empty()) {
