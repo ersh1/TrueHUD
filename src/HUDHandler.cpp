@@ -465,6 +465,10 @@ void HUDHandler::AddRecentLootMessage(RE::TESBoundObject* a_object, std::string_
 		return;
 	}
 
+	if (a_name.length() == 0 || a_name == ""sv || a_name == " "sv) {
+		return;
+	}
+
 	// Don't show message when those menus are open
 	if (Settings::bRecentLootHideInInventoryMenus &&
 		(RE::UI::GetSingleton()->IsMenuOpen(RE::BarterMenu::MENU_NAME) ||

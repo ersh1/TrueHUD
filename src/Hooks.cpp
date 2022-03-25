@@ -54,10 +54,24 @@ namespace Hooks
 	{
 		_AddObjectToContainer(a_this, a_object, a_extraList, a_count, a_fromRefr);
 
-		bool bExtraListNotEmpty = a_extraList && (a_extraList->begin() != a_extraList->end());
+		std::string_view name;
+
+		auto xText = a_extraList->GetExtraTextDisplayData();
+		if (xText) {
+			float health = 1.f;
+
+			auto xHealth = a_extraList->GetByType<RE::ExtraHealth>();
+			if (xHealth) {
+				health = xHealth->health;
+			}
+
+			name = xText->GetDisplayName(a_object, health);
+		} else {
+			name = a_object->GetName();
+		}
 
 		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
-			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, bExtraListNotEmpty ? a_extraList->GetDisplayName(a_object) : a_object->GetName(), a_count);
+			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, name, a_count);
 		}
 	}
 
@@ -116,7 +130,7 @@ namespace Hooks
 	{
 		_AddItem_AddItemFunctor(a_this, a_object, a_count, a4, a5);
 
-		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
+		if (Settings::bEnableRecentLoot && a_this->IsPlayerRef() && a_object->GetPlayable()) {
 			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object->GetBaseObject(), a_object->GetDisplayFullName(), a_count);
 		}
 	}
