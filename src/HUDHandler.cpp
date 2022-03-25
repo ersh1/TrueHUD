@@ -244,7 +244,8 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a
 			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kVisible);
 		} else if ((priorityStack.back() == ContextID::kCursor ||
 					   priorityStack.back() == ContextID::kItemMenu ||
-					   priorityStack.back() == ContextID::kMenuMode) &&
+					   priorityStack.back() == ContextID::kMenuMode ||
+					   priorityStack.back() == ContextID::kInventory) &&
 				   (RE::UI::GetSingleton()->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
 					   !Settings::bRecentLootHideInCraftingMenus && RE::UI::GetSingleton()->IsMenuOpen(RE::CraftingMenu::MENU_NAME) ||
 					   !Settings::bRecentLootHideInInventoryMenus && (RE::UI::GetSingleton()->IsMenuOpen(RE::BarterMenu::MENU_NAME) ||

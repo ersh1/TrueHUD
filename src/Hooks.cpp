@@ -54,24 +54,8 @@ namespace Hooks
 	{
 		_AddObjectToContainer(a_this, a_object, a_extraList, a_count, a_fromRefr);
 
-		std::string_view name;
-
-		auto xText = a_extraList->GetExtraTextDisplayData();
-		if (xText) {
-			float health = 1.f;
-
-			auto xHealth = a_extraList->GetByType<RE::ExtraHealth>();
-			if (xHealth) {
-				health = xHealth->health;
-			}
-
-			name = xText->GetDisplayName(a_object, health);
-		} else {
-			name = a_object->GetName();
-		}
-
 		if (Settings::bEnableRecentLoot && a_object->GetPlayable()) {
-			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, name, a_count);
+			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object, a_object->GetName(), a_count);
 		}
 	}
 
@@ -130,7 +114,22 @@ namespace Hooks
 	{
 		_AddItem_AddItemFunctor(a_this, a_object, a_count, a4, a5);
 
-		if (Settings::bEnableRecentLoot && a_this->IsPlayerRef() && a_object->GetPlayable()) {
+		//static auto GetIsSilent = []() -> bool {
+		//	struct GetIsSilent : Xbyak::CodeGenerator
+		//	{
+		//		GetIsSilent()
+		//		{
+		//			mov(rax, r12b); // r12 has the bIsSilent bool from AddItemFunctor
+		//			ret();
+		//		}
+		//	} getIsSilent;
+
+		//	return getIsSilent.getCode<bool(*)()>()();
+		//};
+
+		//bool bSilent = GetIsSilent();
+
+		if (Settings::bEnableRecentLoot && a_this->IsPlayerRef() /*&& !bSilent*/ && a_object->GetPlayable()) {
 			HUDHandler::GetSingleton()->AddRecentLootMessage(a_object->GetBaseObject(), a_object->GetDisplayFullName(), a_count);
 		}
 	}
