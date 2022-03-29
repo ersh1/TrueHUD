@@ -18,24 +18,25 @@ namespace Hooks
 			_PickUpObject = PlayerCharacterVtbl.write_vfunc(0xCC, PickUpObject);
 
 			auto& trampoline = SKSE::GetTrampoline();
-#ifdef IS_SKYRIM_AE
-			REL::Relocation<uintptr_t> hook1{ REL::ID(52845) };  // 905A10 // FlashHudMenuMeter
-			REL::Relocation<uintptr_t> hook2{ REL::ID(51642) };  // 8B0220 // SetHUDCartMode
-			REL::Relocation<uintptr_t> hook3{ REL::ID(51666) };  // 8B1F40 // HUDChargeMeter::Update
-			REL::Relocation<uintptr_t> hook4{ REL::ID(56490) };  // 9CC5B0 // called by AddItemFunctor
-			REL::Relocation<uintptr_t> hook5{ REL::ID(14864) };  // 1A7DE0 // called by ActivateFlora
-			REL::Relocation<uintptr_t> hook6{ REL::ID(51369) };  // 89C750 // called by ConstructibleObjectMenu
-			REL::Relocation<uintptr_t> hook7{ REL::ID(51354) };  // 899C10 // called by AlchemyMenu
-			REL::Relocation<uintptr_t> hook8{ REL::ID(51355) };  // 89A9C0 // called by EnchantConstructMenu
-			REL::Relocation<uintptr_t> hook9{ REL::ID(16127) };  // 1F5130 // called by AddItem
+#
+			REL::Relocation<uintptr_t> hook1{ RELOCATION_ID(51907, 52845) };  // 8D53D0, 905A10 // FlashHudMenuMeter
+			REL::Relocation<uintptr_t> hook2{ RELOCATION_ID(50747, 51642) };  // 87FFF0, 8B0220 // SetHUDCartMode
+			REL::Relocation<uintptr_t> hook3{ RELOCATION_ID(50771, 51666) };  // 881CC0, 8B1F40 // HUDChargeMeter::Update
+			REL::Relocation<uintptr_t> hook4{ RELOCATION_ID(55946, 56490) };  // 9A42B0, 9CC5B0 // called by AddItemFunctor
+			REL::Relocation<uintptr_t> hook5{ RELOCATION_ID(14692, 14864) };  // 19CA00, 1A7DE0 // called by ActivateFlora
+			REL::Relocation<uintptr_t> hook6{ RELOCATION_ID(50476, 51369) };  // 86E2C0, 89C750 // called by ConstructibleObjectMenu
+			REL::Relocation<uintptr_t> hook7{ RELOCATION_ID(50449, 51354) };  // 86B980, 899C10 // called by AlchemyMenu
+			REL::Relocation<uintptr_t> hook8{ RELOCATION_ID(50450, 51355) };  // 86C640, 89A9C0 // called by EnchantConstructMenu
+			REL::Relocation<uintptr_t> hook9{ RELOCATION_ID(15887, 16127) };  // 1E9900, 1F5130 // called by AddItem
 
-			_AddMessage_Flash = trampoline.write_call<5>(hook1.address() + 0x83, AddMessage_Flash);                    // 905A93
-			_AddMessage_SetHUDCartMode = trampoline.write_call<5>(hook2.address() + 0xA3, AddMessage_SetHUDCartMode);  // 8B02C3
-			_Invoke_ChargeMeter1 = trampoline.write_call<5>(hook3.address() + 0x168, Invoke_ChargeMeter1);             // 8B20A8
-			_Invoke_ChargeMeter2 = trampoline.write_call<5>(hook3.address() + 0x2B3, Invoke_ChargeMeter2);             // 8B21F3
+			_AddMessage_Flash = trampoline.write_call<5>(hook1.address() + 0x83, AddMessage_Flash);                    // 8D5453, 905A93
+			_AddMessage_SetHUDCartMode = trampoline.write_call<5>(hook2.address() + 0xA3, AddMessage_SetHUDCartMode);  // 880093, 8B02C3
+			_Invoke_ChargeMeter1 = trampoline.write_call<5>(hook3.address() + 0x168, Invoke_ChargeMeter1);             // 881E28, 8B20A8
+			_Invoke_ChargeMeter2 = trampoline.write_call<5>(hook3.address() + 0x2B3, Invoke_ChargeMeter2);             // 881F43, 8B21F3
 
-			_AddItem_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x15D, AddItem_AddItemFunctor);                                                       // 9CC70D
-			_PlayPickupSoundAndMessage_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x1C6, PlayPickupSoundAndMessage_AddItemFunctor);                   // 9CC776
+			_AddItem_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x15D, AddItem_AddItemFunctor);                                                       // 9A440D, 9CC70D
+			_PlayPickupSoundAndMessage_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x1C6, PlayPickupSoundAndMessage_AddItemFunctor);                   // 9A4476, 9CC776
+#ifdef SKYRIM_SUPPORT_AE
 			_PlayPickupSoundAndMessage_ActivateFlora1 = trampoline.write_call<5>(hook5.address() + 0x260, PlayPickupSoundAndMessage_ActivateFlora1);                   // 1A8040
 			_PlayPickupSoundAndMessage_ActivateFlora2 = trampoline.write_call<5>(hook5.address() + 0x3CD, PlayPickupSoundAndMessage_ActivateFlora2);                   // 1A81AD
 			_PlayPickupSoundAndMessage_ConstructibleObjectMenu = trampoline.write_call<5>(hook6.address() + 0x68, PlayPickupSoundAndMessage_ConstructibleObjectMenu);  // 89C7B8
@@ -43,23 +44,6 @@ namespace Hooks
 			_PlayPickupSoundAndMessage_EnchantConstructMenu = trampoline.write_call<5>(hook8.address() + 0x2A3, PlayPickupSoundAndMessage_EnchantConstructMenu);       // 89AC63
 			_PlayPickupSoundAndMessage_AddItem = trampoline.write_call<5>(hook9.address() + 0x182, PlayPickupSoundAndMessage_AddItem);                                 // 1F52B2
 #else
-			REL::Relocation<uintptr_t> hook1{ REL::ID(51907) };  // 8D53D0 // FlashHudMenuMeter
-			REL::Relocation<uintptr_t> hook2{ REL::ID(50747) };  // 87FFF0 // SetHUDCartMode
-			REL::Relocation<uintptr_t> hook3{ REL::ID(50771) };  // 881CC0 // HUDChargeMeter::Update
-			REL::Relocation<uintptr_t> hook4{ REL::ID(55946) };  // 9A42B0 // called by AddItemFunctor
-			REL::Relocation<uintptr_t> hook5{ REL::ID(14692) };  // 19CA00 // called by ActivateFlora
-			REL::Relocation<uintptr_t> hook6{ REL::ID(50476) };  // 86E2C0 // called by ConstructibleObjectMenu
-			REL::Relocation<uintptr_t> hook7{ REL::ID(50449) };  // 86B980 // called by AlchemyMenu
-			REL::Relocation<uintptr_t> hook8{ REL::ID(50450) };  // 86C640 // called by EnchantConstructMenu
-			REL::Relocation<uintptr_t> hook9{ REL::ID(15887) };  // 1E9900 // called by AddItem
-
-			_AddMessage_Flash = trampoline.write_call<5>(hook1.address() + 0x83, AddMessage_Flash);                    // 8D5453
-			_AddMessage_SetHUDCartMode = trampoline.write_call<5>(hook2.address() + 0xA3, AddMessage_SetHUDCartMode);  // 880093
-			_Invoke_ChargeMeter1 = trampoline.write_call<5>(hook3.address() + 0x168, Invoke_ChargeMeter1);             // 881E28
-			_Invoke_ChargeMeter2 = trampoline.write_call<5>(hook3.address() + 0x2B3, Invoke_ChargeMeter2);             // 881F43
-
-			_AddItem_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x15D, AddItem_AddItemFunctor);                                                       // 9A440D
-			_PlayPickupSoundAndMessage_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x1C6, PlayPickupSoundAndMessage_AddItemFunctor);                   // 9A4476
 			_PlayPickupSoundAndMessage_ActivateFlora1 = trampoline.write_call<5>(hook5.address() + 0x250, PlayPickupSoundAndMessage_ActivateFlora1);                   // 19CC50
 			_PlayPickupSoundAndMessage_ActivateFlora2 = trampoline.write_call<5>(hook5.address() + 0x3C1, PlayPickupSoundAndMessage_ActivateFlora2);                   // 19CDC1
 			_PlayPickupSoundAndMessage_ConstructibleObjectMenu = trampoline.write_call<5>(hook6.address() + 0x5D, PlayPickupSoundAndMessage_ConstructibleObjectMenu);  // 86E31D

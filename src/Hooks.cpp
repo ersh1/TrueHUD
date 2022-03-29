@@ -266,11 +266,8 @@ namespace Hooks
 
 	void HUDHook::FlashHUDStaminaMountHook()
 	{
-#ifdef IS_SKYRIM_AE
-		static REL::Relocation<uintptr_t> hook{ REL::ID(38022) };  // 636870
-#else
-		static REL::Relocation<uintptr_t> hook{ REL::ID(36994) };  // 60E820
-#endif
+		static REL::Relocation<uintptr_t> hook{ RELOCATION_ID(36994, 38022) };  // 60E820, 636870
+
 		struct Patch : Xbyak::CodeGenerator
 		{
 			explicit Patch(uintptr_t a_funcAddr) {
