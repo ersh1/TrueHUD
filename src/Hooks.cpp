@@ -312,7 +312,7 @@ namespace Hooks
 			if (a_attacker == RE::PlayerCharacter::GetSingleton()) {
 				auto lastHitData = a_this->currentProcess->middleHigh->lastHitData;
 				if (lastHitData && lastHitData->totalDamage == -a_damage) {  // physical attack
-					HUDHandler::GetSingleton()->AddFloatingWorldTextWidget(std::to_string(static_cast<int32_t>(-ceil(a_damage))), 0xFFFFFF, 2.f, true, lastHitData->unk00);
+					HUDHandler::GetSingleton()->AddFloatingWorldTextWidget(std::to_string(static_cast<int32_t>(-ceil(a_damage))), 0xFFFFFF, 2.f, true, lastHitData->hitPosition);
 				} else {  // spell/other
 					HUDHandler::GetSingleton()->AddStackingDamageWorldTextWidget(a_this->GetHandle(), -a_damage);
 					//HUDHandler::GetSingleton()->AddFloatingWorldTextWidget(std::to_string(static_cast<int32_t>(-ceil(a_damage))), 0xFFFFFF, 2.f, false, a_this->GetLookingAtLocation());

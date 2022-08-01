@@ -75,7 +75,7 @@ bool Utils::IsPlayerTeammateOrSummon(RE::Actor* a_actor)
 
 		if (a_actor->IsCommandedActor()) {
 			auto commandingActor = a_actor->GetCommandingActor();
-			if (commandingActor && (commandingActor.native_handle() == 0x100000 || commandingActor.get()->IsPlayerTeammate())) {
+			if (commandingActor && (commandingActor->IsPlayerRef() || commandingActor.get()->IsPlayerTeammate())) {
 				return true;
 			}
 		}
@@ -143,6 +143,38 @@ RE::NiQuaternion Utils::QuatFromRotationMatrix(const RE::NiMatrix3& a_matrix)
 			ret.z = 0.25f * s;
 		}
 	}
+	return ret;
+}
+
+RE::NiMatrix3 Utils::QuaternionToMatrix(const RE::NiQuaternion& a_quat)
+{
+	float sqw = a_quat.w * a_quat.w;
+	float sqx = a_quat.x * a_quat.x;
+	float sqy = a_quat.y * a_quat.y;
+	float sqz = a_quat.z * a_quat.z;
+
+	RE::NiMatrix3 ret;
+
+	// invs (inverse square length) is only required if quaternion is not already normalised
+	float invs = 1.f / (sqx + sqy + sqz + sqw);
+	ret.entry[0][0] = (sqx - sqy - sqz + sqw) * invs;  // since sqw + sqx + sqy + sqz =1/invs*invs
+	ret.entry[1][1] = (-sqx + sqy - sqz + sqw) * invs;
+	ret.entry[2][2] = (-sqx - sqy + sqz + sqw) * invs;
+
+	float tmp1 = a_quat.x * a_quat.y;
+	float tmp2 = a_quat.z * a_quat.w;
+	ret.entry[1][0] = 2.f * (tmp1 + tmp2) * invs;
+	ret.entry[0][1] = 2.f * (tmp1 - tmp2) * invs;
+
+	tmp1 = a_quat.x * a_quat.z;
+	tmp2 = a_quat.y * a_quat.w;
+	ret.entry[2][0] = 2.f * (tmp1 - tmp2) * invs;
+	ret.entry[0][2] = 2.f * (tmp1 + tmp2) * invs;
+	tmp1 = a_quat.y * a_quat.z;
+	tmp2 = a_quat.x * a_quat.w;
+	ret.entry[2][1] = 2.f * (tmp1 + tmp2) * invs;
+	ret.entry[1][2] = 2.f * (tmp1 - tmp2) * invs;
+
 	return ret;
 }
 

@@ -175,6 +175,14 @@ namespace Utils
 	public:
 		MatrixQuatRotation(const RE::NiQuaternion& a_quat);
 	};
+
+	RE::NiMatrix3 QuaternionToMatrix(const RE::NiQuaternion& a_quat);
+	[[nodiscard]] inline RE::NiPoint3 TransformVectorByMatrix(const RE::NiPoint3& a_vector, const RE::NiMatrix3& a_matrix)
+	{
+		return RE::NiPoint3(a_matrix.entry[0][0] * a_vector.x + a_matrix.entry[0][1] * a_vector.y + a_matrix.entry[0][2] * a_vector.z,
+			a_matrix.entry[1][0] * a_vector.x + a_matrix.entry[1][1] * a_vector.y + a_matrix.entry[1][2] * a_vector.z,
+			a_matrix.entry[2][0] * a_vector.x + a_matrix.entry[2][1] * a_vector.y + a_matrix.entry[2][2] * a_vector.z);
+	}
 }
 
 namespace Scaleform

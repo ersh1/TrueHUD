@@ -34,23 +34,15 @@ namespace Hooks
 			_Invoke_ChargeMeter1 = trampoline.write_call<5>(hook3.address() + 0x168, Invoke_ChargeMeter1);             // 881E28, 8B20A8
 			_Invoke_ChargeMeter2 = trampoline.write_call<5>(hook3.address() + 0x2B3, Invoke_ChargeMeter2);             // 881F43, 8B21F3
 
-			_AddItem_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x15D, AddItem_AddItemFunctor);                                                       // 9A440D, 9CC70D
-			_PlayPickupSoundAndMessage_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x1C6, PlayPickupSoundAndMessage_AddItemFunctor);                   // 9A4476, 9CC776
-#ifdef SKYRIM_SUPPORT_AE
-			_PlayPickupSoundAndMessage_ActivateFlora1 = trampoline.write_call<5>(hook5.address() + 0x260, PlayPickupSoundAndMessage_ActivateFlora1);                   // 1A8040
-			_PlayPickupSoundAndMessage_ActivateFlora2 = trampoline.write_call<5>(hook5.address() + 0x3CD, PlayPickupSoundAndMessage_ActivateFlora2);                   // 1A81AD
-			_PlayPickupSoundAndMessage_ConstructibleObjectMenu = trampoline.write_call<5>(hook6.address() + 0x68, PlayPickupSoundAndMessage_ConstructibleObjectMenu);  // 89C7B8
-			_PlayPickupSoundAndMessage_AlchemyMenu = trampoline.write_call<5>(hook7.address() + 0x229, PlayPickupSoundAndMessage_AlchemyMenu);                         // 899E39
-			_PlayPickupSoundAndMessage_EnchantConstructMenu = trampoline.write_call<5>(hook8.address() + 0x2A3, PlayPickupSoundAndMessage_EnchantConstructMenu);       // 89AC63
-			_PlayPickupSoundAndMessage_AddItem = trampoline.write_call<5>(hook9.address() + 0x182, PlayPickupSoundAndMessage_AddItem);                                 // 1F52B2
-#else
-			_PlayPickupSoundAndMessage_ActivateFlora1 = trampoline.write_call<5>(hook5.address() + 0x250, PlayPickupSoundAndMessage_ActivateFlora1);                   // 19CC50
-			_PlayPickupSoundAndMessage_ActivateFlora2 = trampoline.write_call<5>(hook5.address() + 0x3C1, PlayPickupSoundAndMessage_ActivateFlora2);                   // 19CDC1
-			_PlayPickupSoundAndMessage_ConstructibleObjectMenu = trampoline.write_call<5>(hook6.address() + 0x5D, PlayPickupSoundAndMessage_ConstructibleObjectMenu);  // 86E31D
-			_PlayPickupSoundAndMessage_AlchemyMenu = trampoline.write_call<5>(hook7.address() + 0x22E, PlayPickupSoundAndMessage_AlchemyMenu);                         // 86BBAE
-			_PlayPickupSoundAndMessage_EnchantConstructMenu = trampoline.write_call<5>(hook8.address() + 0x2A5, PlayPickupSoundAndMessage_EnchantConstructMenu);       // 86C8E5
-			_PlayPickupSoundAndMessage_AddItem = trampoline.write_call<5>(hook9.address() + 0x178, PlayPickupSoundAndMessage_AddItem);			                       // 1E9A78
-#endif
+			_AddItem_AddItemFunctor = trampoline.write_call<5>(hook4.address() + 0x15D, AddItem_AddItemFunctor);                                                                                // 9A440D, 9CC70D
+			_PlayPickupSoundAndMessage_AddItemFunctor = trampoline.write_call<5>(hook4.address() + RELOCATION_OFFSET(0x1C6, 0x1C6), PlayPickupSoundAndMessage_AddItemFunctor);                  // 9A4476, 9CC776
+			_PlayPickupSoundAndMessage_ActivateFlora1 = trampoline.write_call<5>(hook5.address() + RELOCATION_OFFSET(0x250, 0x260), PlayPickupSoundAndMessage_ActivateFlora1);                  // 19CC50, 1A8040
+			_PlayPickupSoundAndMessage_ActivateFlora2 = trampoline.write_call<5>(hook5.address() + RELOCATION_OFFSET(0x3C1, 0x3CD), PlayPickupSoundAndMessage_ActivateFlora2);                  // 19CDC1, 1A81AD
+			_PlayPickupSoundAndMessage_ConstructibleObjectMenu = trampoline.write_call<5>(hook6.address() + RELOCATION_OFFSET(0x5D, 0x68), PlayPickupSoundAndMessage_ConstructibleObjectMenu);  // 86E31D, 89C7B8
+			_PlayPickupSoundAndMessage_AlchemyMenu = trampoline.write_call<5>(hook7.address() + RELOCATION_OFFSET(0x22E, 0x229), PlayPickupSoundAndMessage_AlchemyMenu);                        // 86BBAE, 899E39
+			_PlayPickupSoundAndMessage_EnchantConstructMenu = trampoline.write_call<5>(hook8.address() + RELOCATION_OFFSET(0x2A5, 0x2A3), PlayPickupSoundAndMessage_EnchantConstructMenu);      // 86C8E5, 89AC63
+			_PlayPickupSoundAndMessage_AddItem = trampoline.write_call<5>(hook9.address() + RELOCATION_OFFSET(0x178, 0x182), PlayPickupSoundAndMessage_AddItem);                                // 1E9A78, 1F52B2
+			
 			FlashHUDStaminaMountHook();
 		}
 

@@ -1044,11 +1044,55 @@ namespace Scaleform
 		RE::NiPoint3 yAxis = axis.GetScaledAxis(Utils::Matrix4::Axis::kY);
 		RE::NiPoint3 zAxis = axis.GetScaledAxis(Utils::Matrix4::Axis::kZ);
 
-		// draw top and bottom circles
 		float halfAxis = max(a_halfHeight - a_radius, 1.f);
 		RE::NiPoint3 topEnd = a_origin + zAxis * halfAxis;
 		RE::NiPoint3 bottomEnd = a_origin - zAxis * halfAxis;
 
+		// draw top and bottom circles
+		DrawCircle(topEnd, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
+		DrawCircle(bottomEnd, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
+
+		// draw caps
+		DrawHalfCircle(topEnd, yAxis, zAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+		DrawHalfCircle(topEnd, xAxis, zAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+
+		RE::NiPoint3 negZAxis = -zAxis;
+
+		DrawHalfCircle(bottomEnd, yAxis, negZAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+		DrawHalfCircle(bottomEnd, xAxis, negZAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+
+		// draw connected lines
+		RE::NiPoint3 start, end;
+		start = topEnd + xAxis * a_radius;
+		end = bottomEnd + xAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = topEnd - xAxis * a_radius;
+		end = bottomEnd - xAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = topEnd + yAxis * a_radius;
+		end = bottomEnd + yAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = topEnd - yAxis * a_radius;
+		end = bottomEnd - yAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+	}
+
+	void TrueHUDMenu::DrawCapsule(const RE::NiPoint3& a_origin, const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, const RE::NiQuaternion& a_rotation, float a_duration /*= 0.f*/, uint32_t a_color /*= 0xFF0000FF*/, float a_thickness /*= 1.f*/)
+	{
+		constexpr int32_t collisionSides = 16;
+
+		auto rotatedVertexA = Utils::TransformVectorByMatrix(a_vertexA, Utils::QuaternionToMatrix(a_rotation));
+		auto rotatedVertexB = Utils::TransformVectorByMatrix(a_vertexB, Utils::QuaternionToMatrix(a_rotation));
+
+		Utils::Matrix4 axis = Utils::MatrixQuatRotation(a_rotation);
+		RE::NiPoint3 xAxis = axis.GetScaledAxis(Utils::Matrix4::Axis::kX);
+		RE::NiPoint3 yAxis = axis.GetScaledAxis(Utils::Matrix4::Axis::kY);
+		RE::NiPoint3 zAxis = axis.GetScaledAxis(Utils::Matrix4::Axis::kZ);
+
+		RE::NiPoint3 topEnd = a_origin + rotatedVertexA;
+		RE::NiPoint3 bottomEnd = a_origin + rotatedVertexB;
+
+		// draw top and bottom circles
 		DrawCircle(topEnd, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
 		DrawCircle(bottomEnd, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
 
