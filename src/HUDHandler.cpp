@@ -37,17 +37,20 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESCombatEvent* a_eve
 			return a_ref && a_ref->IsPlayerRef();
 		};
 
-		if (a_event && a_event->actor && a_event->targetActor) {
-			bool bIsRelevant = a_event->targetActor->IsPlayerRef();
+		auto eventActor = a_event->actor;
+		auto eventTarget = a_event->targetActor;
+
+		if (a_event && eventActor && eventTarget) {
+			bool bIsRelevant = eventTarget->IsPlayerRef();
 			if (!bIsRelevant && bInfoBarsEnabled) {
-				auto actor = a_event->actor->As<RE::Actor>();
+				auto actor = eventActor->As<RE::Actor>();
 				if (Utils::IsPlayerTeammateOrSummon(actor)) {
 					bIsRelevant = true;
 				}
 			}
 
 			if (bIsRelevant) {
-				auto actorHandle = a_event->actor->GetHandle();
+				auto actorHandle = eventActor->GetHandle();
 				if (a_event->newState == CombatState::kCombat) {
 					bool bHasBossBarAlready = HUDHandler::GetTrueHUDMenu()->HasBossInfoBar(actorHandle);
 					if (bHasBossBarAlready) {
@@ -58,7 +61,7 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESCombatEvent* a_eve
 						HUDHandler::GetSingleton()->AddBossInfoBar(actorHandle);
 					} else if (bInfoBarsEnabled) {  // Not a boss, add a normal info bar
 						auto playerCharacter = RE::PlayerCharacter::GetSingleton();
-						auto actor = a_event->actor->As<RE::Actor>();
+						auto actor = eventActor->As<RE::Actor>();
 
 						if (actor->IsHostileToActor(playerCharacter)) {
 							if (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kOnHit) {

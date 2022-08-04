@@ -205,11 +205,13 @@ namespace Scaleform
 			// this works instead
 			//[[maybe_unused]] const auto success = scaleformManager->LoadMovie(menu, menu->uiMovie, FILE_NAME.data());
 			assert(success);
-			auto def = menu->uiMovie->GetMovieDef();
-			if (def) {
-				def->SetState(
-					RE::GFxState::StateType::kLog,
-					RE::make_gptr<Logger>().get());
+			if (menu && menu->uiMovie) {
+				auto def = menu->uiMovie->GetMovieDef();
+				if (def) {
+					def->SetState(
+						RE::GFxState::StateType::kLog,
+						RE::make_gptr<Logger>().get());
+				}
 			}
 
 			menuFlags.set(RE::UI_MENU_FLAGS::kAlwaysOpen);

@@ -83,7 +83,7 @@ namespace Hooks
 	{
 		_AddMessage_SetHUDCartMode(a_this, a_menuName, a_type, a_data);
 
-		if (a_data && a_data->text == "CartMode"sv) {
+		if (a_data && a_data->text == "CartMode") {
 			HUDHandler::GetSingleton()->SetCartMode(a_data->unk40);
 		}
 	}
