@@ -80,9 +80,10 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 	v.PluginVersion(Plugin::VERSION);
 	v.PluginName(Plugin::NAME);
-
+	v.AuthorName("Ersh");
 	v.UsesAddressLibrary(true);
 	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
+	v.HasNoStructUse(true);
 
 	return v;
 }();
@@ -93,8 +94,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	while (!IsDebuggerPresent()) { Sleep(100); }
 #endif
 	REL::Module::reset();  // Clib-NG bug workaround
-	auto runtime = REL::Module::GetRuntime();
-	runtime;
 	
 	InitializeLog();
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());

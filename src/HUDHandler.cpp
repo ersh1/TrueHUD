@@ -698,7 +698,7 @@ bool HUDHandler::CheckActorForBoss(RE::ObjectRefHandle a_refHandle)
 	auto actor = a_refHandle.get()->As<RE::Actor>();
 	if (actor && playerCharacter && (actor != playerCharacter)) {
 		// Check whether the target is even alive or hostile first
-		if (actor->IsDead() || (actor->IsBleedingOut() && actor->IsEssential()) || !actor->IsHostileToActor(playerCharacter)) {
+		if (actor->IsDead() || (actor->AsActorState()->IsBleedingOut() && actor->IsEssential()) || !actor->IsHostileToActor(playerCharacter)) {
 			return false;
 		}
 
@@ -716,7 +716,7 @@ bool HUDHandler::CheckActorForBoss(RE::ObjectRefHandle a_refHandle)
 		}
 
 		// Check race
-		if (Settings::bossRaces.contains(actor->race)) {
+		if (Settings::bossRaces.contains(actor->GetRace())) {
 			return true;
 		}
 
@@ -726,8 +726,8 @@ bool HUDHandler::CheckActorForBoss(RE::ObjectRefHandle a_refHandle)
 		}
 
 		// Check current loc refs
-		if (playerCharacter->currentLocation) {
-			for (auto& ref : playerCharacter->currentLocation->specialRefs) {
+		if (auto currentLocation = playerCharacter->GetPlayerRuntimeData().currentLocation) {
+			for (auto& ref : currentLocation->specialRefs) {
 				if (ref.type && Settings::bossLocRefTypes.contains(ref.type) && ref.refData.refID == actor->formID) {
 					return true;
 				}

@@ -44,7 +44,7 @@ namespace Hooks
 		if (Settings::bPlayerWidgetDisplayMountStamina) {
 			RE::ActorPtr playerMount = nullptr;
 			bool bPlayerHasMount = RE::PlayerCharacter::GetSingleton()->GetMount(playerMount);
-			if (bPlayerHasMount && playerMount->GetActorValue(RE::ActorValue::kStamina) <= 0.f) {
+			if (bPlayerHasMount && playerMount->AsActorValueOwner()->GetActorValue(RE::ActorValue::kStamina) <= 0.f) {
 				FlashHUDMenuMeter(RE::ActorValue::kStamina);
 			}
 		}
@@ -310,7 +310,7 @@ namespace Hooks
 
 		if (Settings::bEnableFloatingText && Settings::bEnableFloatingCombatText) {
 			if (a_attacker == RE::PlayerCharacter::GetSingleton()) {
-				auto lastHitData = a_this->currentProcess->middleHigh->lastHitData;
+				auto lastHitData = a_this->GetActorRuntimeData().currentProcess->middleHigh->lastHitData;
 				if (lastHitData && lastHitData->totalDamage == -a_damage) {  // physical attack
 					HUDHandler::GetSingleton()->AddFloatingWorldTextWidget(std::to_string(static_cast<int32_t>(-ceil(a_damage))), 0xFFFFFF, 2.f, true, lastHitData->hitPosition);
 				} else {  // spell/other

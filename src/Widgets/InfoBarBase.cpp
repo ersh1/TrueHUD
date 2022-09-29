@@ -137,7 +137,7 @@ namespace Scaleform
 		TargetState targetState;
 		if (actor->IsDead()) {
 			targetState = kDead;
-		} else if (actor->IsBleedingOut()) {
+		} else if (actor->AsActorState()->IsBleedingOut()) {
 			targetState = actor->IsEssential() ? kBleedingOutEssential : kBleedingOut;
 		} else {
 			targetState = kAlive;
@@ -181,7 +181,7 @@ namespace Scaleform
 				} else {
 					bool r8 = false;
 					bool bHasLOS = targetType == kTarget ? true : playerCharacter->HasLineOfSight(actor, r8);
-					bool bVisible = bHasLOS && !(actor->GetActorValue(RE::ActorValue::kInvisibility) > 0);
+					bool bVisible = bHasLOS && !(actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kInvisibility) > 0);
 					if (bVisible) {
 						SetWidgetState(WidgetStateMode::kShow);
 					} else {
@@ -225,23 +225,24 @@ namespace Scaleform
 			soulType = GetSoulType(targetLevel, static_cast<uint8_t>(isSentient));
 		}
 
-		float permanentHealth = actor->GetPermanentActorValue(RE::ActorValue::kHealth);
+		auto actorValueOwner = actor->AsActorValueOwner();
+		float permanentHealth = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kHealth);
 		float temporaryHealth = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kHealth);
 		float maxHealth = permanentHealth + temporaryHealth;
 		float health;
 		if (targetState == kDead || targetState == kBleedingOutEssential) {
 			health = 0;
 		} else {
-			health = actor->GetActorValue(RE::ActorValue::kHealth);
+			health = actorValueOwner->GetActorValue(RE::ActorValue::kHealth);
 		}
-		float permanentMagicka = actor->GetPermanentActorValue(RE::ActorValue::kMagicka);
+		float permanentMagicka = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kMagicka);
 		float temporaryMagicka = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kMagicka);
 		float maxMagicka = permanentMagicka + temporaryMagicka;
-		float magicka = actor->GetActorValue(RE::ActorValue::kMagicka);
-		float permanentStamina = actor->GetPermanentActorValue(RE::ActorValue::kStamina);
+		float magicka = actorValueOwner->GetActorValue(RE::ActorValue::kMagicka);
+		float permanentStamina = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kStamina);
 		float temporaryStamina = actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
 		float maxStamina = permanentStamina + temporaryStamina;
-		float stamina = actor->GetActorValue(RE::ActorValue::kStamina);
+		float stamina = actorValueOwner->GetActorValue(RE::ActorValue::kStamina);
 		
 		RE::GFxValue args[18];
 		args[0].SetNumber(targetType);

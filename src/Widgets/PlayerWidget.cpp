@@ -248,36 +248,40 @@ namespace Scaleform
 		auto playerCharacter = RE::PlayerCharacter::GetSingleton();
 		float permanentHealth, temporaryHealth, maxHealth, health, permanentMagicka, temporaryMagicka, maxMagicka, magicka, permanentStamina, temporaryStamina, maxStamina, stamina;
 
-		permanentHealth = playerCharacter->GetPermanentActorValue(RE::ActorValue::kHealth);
+		auto actorValueOwner = playerCharacter->AsActorValueOwner();
+
+		permanentHealth = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kHealth);
 		temporaryHealth = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kHealth);
 		maxHealth = permanentHealth + temporaryHealth;
 		maxHealth /= (1.f - _healthPenaltyPct);
 		if (playerCharacter->IsDead()) {
 			health = 0;
 		} else {
-			health = playerCharacter->GetActorValue(RE::ActorValue::kHealth);
+			health = actorValueOwner->GetActorValue(RE::ActorValue::kHealth);
 		}
 
-		permanentMagicka = playerCharacter->GetPermanentActorValue(RE::ActorValue::kMagicka);
+		permanentMagicka = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kMagicka);
 		temporaryMagicka = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kMagicka);
 		maxMagicka = permanentMagicka + temporaryMagicka;
 		maxMagicka /= (1.f - _magickaPenaltyPct);
-		magicka = playerCharacter->GetActorValue(RE::ActorValue::kMagicka);
+		magicka = actorValueOwner->GetActorValue(RE::ActorValue::kMagicka);
 
 		RE::ActorPtr mount;
 		bool bIsInMountMode = false;
 		if (Settings::bPlayerWidgetDisplayMountStamina && playerCharacter->GetMount(mount)) {
-			permanentStamina = mount->GetPermanentActorValue(RE::ActorValue::kStamina);
+			auto mountActorValueOwner = mount->AsActorValueOwner();
+
+			permanentStamina = mountActorValueOwner->GetPermanentActorValue(RE::ActorValue::kStamina);
 			temporaryStamina = mount->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
 			maxStamina = permanentStamina + temporaryStamina;
-			stamina = mount->GetActorValue(RE::ActorValue::kStamina);
+			stamina = mountActorValueOwner->GetActorValue(RE::ActorValue::kStamina);
 			bIsInMountMode = true;
 		} else {
-			permanentStamina = playerCharacter->GetPermanentActorValue(RE::ActorValue::kStamina);
+			permanentStamina = actorValueOwner->GetPermanentActorValue(RE::ActorValue::kStamina);
 			temporaryStamina = playerCharacter->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina);
 			maxStamina = permanentStamina + temporaryStamina;
 			maxStamina /= (1.f - _staminaPenaltyPct);
-			stamina = playerCharacter->GetActorValue(RE::ActorValue::kStamina);
+			stamina = actorValueOwner->GetActorValue(RE::ActorValue::kStamina);
 			bIsInMountMode = false;
 		}
 

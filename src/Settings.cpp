@@ -7,21 +7,26 @@ void Settings::Initialize()
 {
 	logger::info("Initializing...");
 
-	#undef GetObject
-	using DefaultObject = RE::BGSDefaultObjectManager::DefaultObject;
-	auto defaultObjectManager = RE::BGSDefaultObjectManager::GetSingleton();
-	if (defaultObjectManager) {
-		glob_survivalModeEnabled = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalModeEnabled);
-		glob_survivalHealthPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalColdPenalty);
-		glob_survivalMagickaPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalSleepPenalty);
-		glob_survivalStaminaPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalHungerPenalty);
-		//kywd_Dragon = defaultObjectManager->GetObject<RE::BGSKeyword>(DefaultObject::kKeywordDragon);
-	}	
+	//using DefaultObject = RE::BGSDefaultObjectManager::DefaultObject;
+	//auto defaultObjectManager = RE::BGSDefaultObjectManager::GetSingleton();
+	//if (defaultObjectManager) {
+	//	glob_survivalModeEnabled = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalModeEnabled);
+	//	glob_survivalHealthPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalColdPenalty);
+	//	glob_survivalMagickaPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalSleepPenalty);
+	//	glob_survivalStaminaPenaltyPercent = defaultObjectManager->GetObject<RE::TESGlobal>(DefaultObject::kSurvivalHungerPenalty);
+	//	//kywd_Dragon = defaultObjectManager->GetObject<RE::BGSKeyword>(DefaultObject::kKeywordDragon);
+	//}	
 
 	auto dataHandler = RE::TESDataHandler::GetSingleton();
 	if (dataHandler) {
 		kywd_noSoulTrap = dataHandler->LookupForm<RE::BGSKeyword>(0x103AD2, "Skyrim.esm");
 		kywd_Dragon = dataHandler->LookupForm<RE::BGSKeyword>(0x35D59, "Skyrim.esm");
+		
+		glob_survivalModeEnabled = dataHandler->LookupForm<RE::TESGlobal>(0x314A, "Update.esm");
+		glob_survivalHealthPenaltyPercent = dataHandler->LookupForm<RE::TESGlobal>(0x2EDE, "Update.esm");
+		glob_survivalMagickaPenaltyPercent = dataHandler->LookupForm<RE::TESGlobal>(0x2EE0, "Update.esm");
+		glob_survivalStaminaPenaltyPercent = dataHandler->LookupForm<RE::TESGlobal>(0x2EDF, "Update.esm");
+		
 		glob_trueHUDVersion = dataHandler->LookupForm<RE::TESGlobal>(0x801, "TrueHUD.esl");
 		glob_trueHUDSpecialResourceBars = dataHandler->LookupForm<RE::TESGlobal>(0x802, "TrueHUD.esl");
 	}

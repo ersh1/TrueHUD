@@ -23,7 +23,7 @@ bool Utils::GetNodePosition(RE::ActorPtr a_actor, const char* a_nodeName, RE::Ni
 
 bool Utils::GetTorsoPos(RE::ActorPtr a_actor, RE::NiPoint3& point)
 {
-	RE::TESRace* race = a_actor->race;
+	RE::TESRace* race = a_actor->GetRace();
 	if (!race) {
 		return false;
 	}
