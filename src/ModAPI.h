@@ -9,16 +9,17 @@ namespace Messaging
 	using InterfaceVersion1 = ::TRUEHUD_API::IVTrueHUD1;
 	using InterfaceVersion2 = ::TRUEHUD_API::IVTrueHUD2;
 	using InterfaceVersion3 = ::TRUEHUD_API::IVTrueHUD3;
+	using InterfaceVersion4 = ::TRUEHUD_API::IVTrueHUD4;
 	using PlayerWidgetBarType = ::TRUEHUD_API::PlayerWidgetBarType;
 	using BarColorType = ::TRUEHUD_API::BarColorType;
 	using WidgetRemovalMode = ::TRUEHUD_API::WidgetRemovalMode;
 
 	using SpecialResourceCallback = ::TRUEHUD_API::SpecialResourceCallback;
 	using APIResultCallback = ::TRUEHUD_API::APIResultCallback;
-	
+
 	using WidgetBase = ::TRUEHUD_API::WidgetBase;
 
-	class TrueHUDInterface : public InterfaceVersion3
+	class TrueHUDInterface : public InterfaceVersion4
 	{
 	private:
 		TrueHUDInterface() noexcept;
@@ -74,10 +75,13 @@ namespace Messaging
 
 		virtual bool HasInfoBar(RE::ActorHandle a_actorHandle, bool a_bFloatingOnly = false) const noexcept override;
 
+		// InterfaceVersion4
+		virtual void DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration, uint32_t a_color, float a_thickness) noexcept override;
+
 		// Does a mod have control over the current target?
 		bool IsTargetControlTaken() const noexcept;
 		// Does a mod have control over the special resource bars?
-		bool IsSpecialResourceBarsControlTaken() const noexcept; 
+		bool IsSpecialResourceBarsControlTaken() const noexcept;
 
 	private:
 		unsigned long apiTID = 0;

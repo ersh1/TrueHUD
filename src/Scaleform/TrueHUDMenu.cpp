@@ -1121,6 +1121,47 @@ namespace Scaleform
 		DrawLine(start, end, a_duration, a_color, a_thickness);
 	}
 
+	void TrueHUDMenu::DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration /*= 0.f*/, uint32_t a_color /*= 0xFF0000FF*/, float a_thickness /*= 1.f*/)
+	{
+		constexpr int32_t collisionSides = 16;
+
+		RE::NiPoint3 zAxis = a_vertexA - a_vertexB;
+		zAxis.Unitize();
+
+		// get other axis
+		RE::NiPoint3 upVector = (fabs(zAxis.z) < (1.f - 1.e-4f)) ? RE::NiPoint3{ 0.f, 0.f, 1.f } : RE::NiPoint3{ 1.f, 0.f, 0.f };
+		RE::NiPoint3 xAxis = upVector.UnitCross(zAxis);
+		RE::NiPoint3 yAxis = zAxis.Cross(xAxis);
+
+		// draw top and bottom circles
+		DrawCircle(a_vertexA, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
+		DrawCircle(a_vertexB, xAxis, yAxis, a_radius, collisionSides, a_duration, a_color);
+
+		// draw caps
+		DrawHalfCircle(a_vertexA, yAxis, zAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+		DrawHalfCircle(a_vertexA, xAxis, zAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+
+		RE::NiPoint3 negZAxis = -zAxis;
+
+		DrawHalfCircle(a_vertexB, yAxis, negZAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+		DrawHalfCircle(a_vertexB, xAxis, negZAxis, a_radius, collisionSides, a_duration, a_color, a_thickness);
+
+		// draw connected lines
+		RE::NiPoint3 start, end;
+		start = a_vertexA + xAxis * a_radius;
+		end = a_vertexB + xAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = a_vertexA - xAxis * a_radius;
+		end = a_vertexB - xAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = a_vertexA + yAxis * a_radius;
+		end = a_vertexB + yAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+		start = a_vertexA - yAxis * a_radius;
+		end = a_vertexB - yAxis * a_radius;
+		DrawLine(start, end, a_duration, a_color, a_thickness);
+	}
+
 	void TrueHUDMenu::SetMenuVisibilityMode(MenuVisibilityMode a_mode)
 	{
 		_menuVisibilityMode = a_mode;

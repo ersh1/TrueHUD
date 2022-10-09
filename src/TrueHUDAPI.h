@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include <stdint.h>
 #include <queue>
+#include <stdint.h>
 
 /*
 * For modders: Copy this file into your own project if you wish to use this API
@@ -15,7 +15,8 @@ namespace TRUEHUD_API
 	{
 		V1,
 		V2,
-		V3
+		V3,
+		V4
 	};
 
 	// Error types that may be returned by the True HUD
@@ -120,16 +121,19 @@ namespace TRUEHUD_API
 		virtual void Update(float a_deltaTime) = 0;
 		virtual void Initialize() = 0;
 		virtual void Dispose() = 0;
-		virtual void SetWidgetState(WidgetState a_newWidgetState) {
+		virtual void SetWidgetState(WidgetState a_newWidgetState)
+		{
 			_widgetState = a_newWidgetState;
 		}
 
-		void AddWidgetTask(WidgetTask a_task) {
+		void AddWidgetTask(WidgetTask a_task)
+		{
 			Locker locker(_lock);
 			_taskQueue.push(std::move(a_task));
 		}
 
-		void ProcessDelegates() {
+		void ProcessDelegates()
+		{
 			while (!_taskQueue.empty()) {
 				auto& task = _taskQueue.front();
 				task();
@@ -235,7 +239,7 @@ namespace TRUEHUD_API
 		virtual APIResult FlashActorSpecialBar(SKSE::PluginHandle a_myPluginHandle, RE::ActorHandle a_actorHandle, bool a_bLong) noexcept = 0;
 
 		/// <summary>
-		/// Registers the special resource functions 
+		/// Registers the special resource functions
 		/// </summary>
 		/// <param name="a_myPluginHandle">Your assigned plugin handle</param>
 		/// <param name="a_getCurrentSpecialResource">Function that will return current special resource value</param>
@@ -372,6 +376,13 @@ namespace TRUEHUD_API
 		[[nodiscard]] virtual bool HasInfoBar(RE::ActorHandle a_actorHandle, bool a_bFloatingOnly = false) const noexcept = 0;
 	};
 
+	class IVTrueHUD4 : public IVTrueHUD3
+	{
+	public:
+		// Debug drawing API functions
+		virtual void DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f) noexcept = 0;
+	};
+
 	typedef void* (*_RequestPluginAPI)(const InterfaceVersion interfaceVersion);
 
 	/// <summary>
@@ -380,7 +391,7 @@ namespace TRUEHUD_API
 	/// </summary>
 	/// <param name="a_interfaceVersion">The interface version to request</param>
 	/// <returns>The pointer to the API singleton, or nullptr if request failed</returns>
-	[[nodiscard]] inline void* RequestPluginAPI(const InterfaceVersion a_interfaceVersion = InterfaceVersion::V3)
+	[[nodiscard]] inline void* RequestPluginAPI(const InterfaceVersion a_interfaceVersion = InterfaceVersion::V4)
 	{
 		auto pluginHandle = GetModuleHandle("TrueHUD.dll");
 		_RequestPluginAPI requestAPIFunction = (_RequestPluginAPI)GetProcAddress(pluginHandle, "RequestPluginAPI");

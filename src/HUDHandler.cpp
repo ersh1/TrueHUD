@@ -667,6 +667,13 @@ void HUDHandler::DrawCapsule(const RE::NiPoint3& a_origin, float a_halfHeight, f
 	});
 }
 
+void HUDHandler::DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_vertexA, a_vertexB, a_radius, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawCapsule(a_vertexA, a_vertexB, a_radius, a_duration, a_color, a_thickness);
+	});
+}
+
 void HUDHandler::SetMenuVisibilityMode(MenuVisibilityMode a_mode)
 {
 	AddHUDTask([a_mode](TrueHUDMenu& a_menu) {

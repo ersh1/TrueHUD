@@ -319,6 +319,12 @@ namespace Messaging
 		hudHandler->DrawCapsule(a_origin, a_halfHeight, a_radius, a_rotation, a_duration, a_color, a_thickness);
 	}
 
+	void TrueHUDInterface::DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawCapsule(a_vertexA, a_vertexB, a_radius, a_duration, a_color, a_thickness);
+	}
+
 	bool TrueHUDInterface::HasInfoBar(RE::ActorHandle a_actorHandle, bool a_bFloatingOnly /*= false*/) const noexcept
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
@@ -327,7 +333,7 @@ namespace Messaging
 			return hudHandler->HasActorInfoBar(a_actorHandle);
 		} else {
 			return hudHandler->HasActorInfoBar(a_actorHandle) || hudHandler->HasBossInfoBar(a_actorHandle);
-		}		
+		}
 	}
 
 	bool TrueHUDInterface::IsTargetControlTaken() const noexcept
