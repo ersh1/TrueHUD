@@ -598,7 +598,7 @@ class Widgets.TrueHUD_PlayerWidget extends MovieClip
 			bIsInMountMode = a_bIsInMountMode;
 		}
 		
-		if (a_bForce || (a_health != health || a_maxHealth != maxHealth || a_healthPct != healthPct))
+		if (a_bForce || (a_health != health || a_maxHealth != maxHealth || a_healthPct != healthPct || a_health != a_maxHealth))
 		{
 			var bInstant = false;
 			if (a_bForce || health == -1) // first update, health not set yet
@@ -626,7 +626,7 @@ class Widgets.TrueHUD_PlayerWidget extends MovieClip
 			healthPct = a_healthPct;
 		}
 
-		if (a_bForce || (a_magicka != magicka || a_maxMagicka != maxMagicka || a_magickaPct != magickaPct))
+		if (a_bForce || (a_magicka != magicka || a_maxMagicka != maxMagicka || a_magickaPct != magickaPct || a_magicka != a_maxMagicka))
 		{
 			var bInstant = false;
 			if (a_bForce || magicka == -1) // first update, magicka not set yet
@@ -654,7 +654,7 @@ class Widgets.TrueHUD_PlayerWidget extends MovieClip
 			magickaPct = a_magickaPct;
 		}
 
-		if (a_bForce || (a_stamina != stamina || a_maxStamina != maxStamina || a_staminaPct != staminaPct))
+		if (a_bForce || (a_stamina != stamina || a_maxStamina != maxStamina || a_staminaPct != staminaPct || a_stamina != a_maxStamina))
 		{
 			var bInstant = false;
 			if (a_bForce || stamina == -1) // first update, stamina not set yet
