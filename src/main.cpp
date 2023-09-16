@@ -3,9 +3,11 @@
 #include "Settings.h"
 #include "HUDHandler.h"
 #include "Scaleform/Scaleform.h"
+#include "NPCNameProvider.h"
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
+	// Try requesting APIs at multiple steps to try to work around the SKSE messaging bug
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		Scaleform::Register();
@@ -13,13 +15,20 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		Settings::Initialize();
 		Settings::ReadSettings();		
 		HUDHandler::GetSingleton()->Initialize();
+		NPCNameProvider::GetSingleton()->RequestAPI();
 		break;
 	case SKSE::MessagingInterface::kPreLoadGame:
 		HUDHandler::GetSingleton()->OnPreLoadGame();
+		NPCNameProvider::GetSingleton()->RequestAPI();
+		break;
+	case SKSE::MessagingInterface::kPostLoad:
+	case SKSE::MessagingInterface::kPostPostLoad:
+		NPCNameProvider::GetSingleton()->RequestAPI();
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
 	case SKSE::MessagingInterface::kNewGame:
 		Settings::OnPostLoadGame();
+		NPCNameProvider::GetSingleton()->RequestAPI();
 		break;
 	}
 }
