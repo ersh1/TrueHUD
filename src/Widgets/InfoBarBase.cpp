@@ -3,6 +3,7 @@
 #include "Settings.h"
 #include "Utils.h"
 #include "HUDHandler.h"
+#include "NPCNameProvider.h"
 
 namespace Scaleform
 {
@@ -191,7 +192,7 @@ namespace Scaleform
 			} 
 		}
 
-		auto targetName = actor->GetDisplayFullName();
+		auto targetName = NPCNameProvider::GetSingleton()->GetName(actor);
 		auto targetLevel = actor->GetLevel();
 
 		uint32_t levelColor = Settings::uDefaultColor;
