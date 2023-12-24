@@ -2,6 +2,7 @@
   "name": "truehud",
   "version": "1",
   "dependencies": [
+    "directxtk",
     "fmt",
     "rapidcsv",
     "rsm-binary-io",

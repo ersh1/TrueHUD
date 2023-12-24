@@ -804,7 +804,7 @@ namespace Scaleform
 				case RE::ActorValue::kMagickaRate:
 					subType = SKYUI_POTIONTYPE::kMagickaRate;
 					break;
-				case RE::ActorValue::KStaminaRate:
+				case RE::ActorValue::kStaminaRate:
 					subType = SKYUI_POTIONTYPE::kStaminaRate;
 					break;
 				case RE::ActorValue::kHealRateMult:

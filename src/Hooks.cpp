@@ -4,6 +4,7 @@
 #include "HUDHandler.h"
 #include "ModAPI.h"
 
+#pragma warning(disable: 4702)
 #include <xbyak/xbyak.h>
 
 namespace Hooks
