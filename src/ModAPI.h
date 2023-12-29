@@ -80,7 +80,7 @@ namespace Messaging
 		virtual void DrawCapsule(const RE::NiPoint3& a_vertexA, const RE::NiPoint3& a_vertexB, float a_radius, float a_duration, uint32_t a_color, float a_thickness) noexcept override;
 
 		//InterfaceVersion5
-		virtual void DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startAngle, float a_endAngle, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept override;
+		virtual void DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept override;
 
 		// Does a mod have control over the current target?
 		bool IsTargetControlTaken() const noexcept;

@@ -893,19 +893,19 @@ namespace Scaleform
 		}
 	}
 
-	void TrueHUDMenu::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startAngle, float a_endAngle, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+	void TrueHUDMenu::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
 	{
 		if (std::abs(a_radius) < 1e-6)
 			return;
 
-		float radian = a_startAngle < a_endAngle ? a_endAngle - a_startAngle : a_endAngle - a_startAngle + 2.0f * PI;
+		float radian = a_startRadian < a_endRadian ? a_endRadian - a_startRadian : a_endRadian - a_startRadian + 2.0f * PI;
 
 		auto GetPointOnArc = [](const RE::NiPoint3& origin, float radius, float startAngle, float radian, float i, float maxI, const RE::NiMatrix3& matrix) -> RE::NiPoint3 {
 			auto currentAngle = startAngle + radian * (i / maxI);
 			return origin + matrix * RE::NiPoint3(radius * std::sinf(currentAngle), radius * std::cosf(currentAngle), 0.f);
 		};
 
-		auto currentPoint = GetPointOnArc(a_origin, a_radius, a_startAngle, radian, 0, a_segments, a_matrix);
+		auto currentPoint = GetPointOnArc(a_origin, a_radius, a_startRadian, radian, 0, a_segments, a_matrix);
 		DrawLine(
 			currentPoint,
 			a_origin,
@@ -914,7 +914,7 @@ namespace Scaleform
 			a_thickness);
 
 		for (int i = 1; i <= a_segments; i++) {
-			auto nextPoint = GetPointOnArc(a_origin, a_radius, a_startAngle, radian, i, a_segments, a_matrix);
+			auto nextPoint = GetPointOnArc(a_origin, a_radius, a_startRadian, radian, i, a_segments, a_matrix);
 
 			DrawLine(
 				currentPoint,

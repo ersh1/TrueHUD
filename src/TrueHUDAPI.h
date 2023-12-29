@@ -388,7 +388,7 @@ namespace TRUEHUD_API
 	{
 	public:
 		// Debug drawing API functions
-		virtual void DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startAngle, float a_endAngle, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f) noexcept = 0;
+		virtual void DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration = 0.f, uint32_t a_color = 0xFF0000FF, float a_thickness = 1.f) noexcept = 0;
 	};
 
 	typedef void* (*_RequestPluginAPI)(const InterfaceVersion interfaceVersion);

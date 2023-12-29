@@ -637,10 +637,10 @@ void HUDHandler::DrawHalfCircle(const RE::NiPoint3& a_center, const RE::NiPoint3
 	});
 }
 
-void HUDHandler::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startAngle, float a_endAngle, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+void HUDHandler::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
 {
-	AddHUDTask([a_origin, a_radius, a_startAngle, a_endAngle, a_matrix, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
-		a_menu.DrawArc(a_origin, a_radius, a_startAngle, a_endAngle, a_matrix, a_segments, a_duration, a_color, a_thickness);
+	AddHUDTask([a_origin, a_radius, a_startRadian, a_endRadian, a_matrix, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawArc(a_origin, a_radius, a_startRadian, a_endRadian, a_matrix, a_segments, a_duration, a_color, a_thickness);
 	});
 }
 
