@@ -1,11 +1,11 @@
 #include "Scaleform/TrueHUDMenu.h"
 
-#include "Settings.h"
-#include "Offsets.h"
 #include "HUDHandler.h"
+#include "Offsets.h"
+#include "Settings.h"
+#include "Utils.h"
 #include "Widgets/ActorInfoBar.h"
 #include "Widgets/FloatingText.h"
-#include "Utils.h"
 
 namespace Scaleform
 {
@@ -36,7 +36,7 @@ namespace Scaleform
 			if (a_actorHandle) {
 				AddActorInfoBar(a_actorHandle);
 			}
-		}		
+		}
 	}
 
 	void TrueHUDMenu::SetSoftTarget(RE::ObjectRefHandle a_actorHandle)
@@ -47,7 +47,7 @@ namespace Scaleform
 			if (a_actorHandle) {
 				AddActorInfoBar(a_actorHandle);
 			}
-		}		
+		}
 	}
 
 	RE::ObjectRefHandle TrueHUDMenu::GetTarget() const
@@ -68,7 +68,7 @@ namespace Scaleform
 	}
 
 	bool TrueHUDMenu::AddActorInfoBar(RE::ObjectRefHandle a_actorHandle)
-	{	
+	{
 		using WidgetStateMode = InfoBarBase::WidgetStateMode;
 
 		if (_view && !HasActorInfoBar(a_actorHandle) && !HasBossInfoBar(a_actorHandle)) {
@@ -105,8 +105,7 @@ namespace Scaleform
 			if (it != _actorInfoBarMap.end()) {
 				auto& widget = it->second;
 
-				switch (a_removalMode)
-				{
+				switch (a_removalMode) {
 				case WidgetRemovalMode::Immediate:
 					if (widget->_object.IsDisplayObject()) {
 						RE::GFxValue arg;
@@ -154,7 +153,7 @@ namespace Scaleform
 			} else {
 				// Maximum count of boss bars, add to queue
 				_bossQueue.emplace_back(a_actorHandle);
-			}			
+			}
 		}
 
 		return false;
@@ -447,7 +446,7 @@ namespace Scaleform
 			RE::GFxValue args[2];
 			args[0].SetNumber(a_myPluginHandle);
 			args[1].SetNumber(a_widgetType);
-			
+
 			_view->Invoke("_root.TrueHUD.RegisterNewWidgetType", nullptr, args, 2);
 		}
 
@@ -522,7 +521,7 @@ namespace Scaleform
 
 						return true;
 					}
-				}				
+				}
 			}
 		}
 
@@ -678,7 +677,7 @@ namespace Scaleform
 			barType = BarType::kStamina;
 			break;
 		}
-		
+
 		auto it = _colorOverrides.find(a_actorHandle);
 		if (it != _colorOverrides.end()) {
 			auto& bars = it->second;
@@ -894,6 +893,47 @@ namespace Scaleform
 		}
 	}
 
+	void TrueHUDMenu::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+	{
+		if (std::abs(a_radius) < 1e-6)
+			return;
+
+		float radian = a_startRadian < a_endRadian ? a_endRadian - a_startRadian : a_endRadian - a_startRadian + 2.0f * PI;
+
+		auto GetPointOnArc = [](const RE::NiPoint3& origin, float radius, float startAngle, float radian, float i, float maxI, const RE::NiMatrix3& matrix) -> RE::NiPoint3 {
+			auto currentAngle = startAngle + radian * (i / maxI);
+			return origin + matrix * RE::NiPoint3(radius * std::sinf(currentAngle), radius * std::cosf(currentAngle), 0.f);
+		};
+
+		auto currentPoint = GetPointOnArc(a_origin, a_radius, a_startRadian, radian, 0, a_segments, a_matrix);
+		DrawLine(
+			currentPoint,
+			a_origin,
+			a_duration,
+			a_color,
+			a_thickness);
+
+		for (int i = 1; i <= a_segments; i++) {
+			auto nextPoint = GetPointOnArc(a_origin, a_radius, a_startRadian, radian, i, a_segments, a_matrix);
+
+			DrawLine(
+				currentPoint,
+				nextPoint,
+				a_duration,
+				a_color,
+				a_thickness);
+
+			currentPoint = nextPoint;
+		}
+
+		DrawLine(
+			currentPoint,
+			a_origin,
+			a_duration,
+			a_color,
+			a_thickness);
+	}
+
 	void TrueHUDMenu::DrawSphere(const RE::NiPoint3& a_origin, float a_radius, uint32_t a_segments /*= 16*/, float a_duration /*= 0.f*/, uint32_t a_color /*= 0xFF0000FF*/, float a_thickness /*= 1.f*/)
 	{
 		a_segments = max(a_segments, 4);
@@ -903,7 +943,7 @@ namespace Scaleform
 		uint32_t numSegmentsY = a_segments, numSegmentsX;
 		float latitude = angleInc, longitude;
 		float sinY1 = 0.f, cosY1 = 1.f, sinY2, cosY2, sinX, cosX;
-		
+
 		while (numSegmentsY--) {
 			sinY2 = sinf(latitude);
 			cosY2 = cosf(latitude);
@@ -957,8 +997,7 @@ namespace Scaleform
 		p1 = segment + a_start;
 		p3 = segment + a_end;
 
-		while (a_segments--)
-		{
+		while (a_segments--) {
 			segment = Utils::RotateAngleAxis(perpendicular, angle, axis) * a_radius;
 			p2 = segment + a_start;
 			p4 = segment + a_end;
@@ -976,9 +1015,11 @@ namespace Scaleform
 	void TrueHUDMenu::DrawCone(const RE::NiPoint3& a_origin, const RE::NiPoint3& a_direction, float a_length, float a_angleWidth, float a_angleHeight, uint32_t a_segments, float a_duration /*= 0.f*/, uint32_t a_color /*= 0xFF0000FF*/, float a_thickness /*= 1.f*/)
 	{
 		a_segments = max(a_segments, 4);
-		
-		const float angle1 = a_angleHeight < 1e-4f ? 1e-4f : a_angleHeight < PI - 1e-4f ? a_angleHeight : PI - 1e-4f;
-		const float angle2 = a_angleWidth < 1e-4f ? 1e-4f : a_angleWidth < PI - 1e-4f ? a_angleWidth : PI - 1e-4f;
+
+		const float angle1 = a_angleHeight < 1e-4f ? 1e-4f : a_angleHeight < PI - 1e-4f ? a_angleHeight :
+		                                                                                  PI - 1e-4f;
+		const float angle2 = a_angleWidth < 1e-4f ? 1e-4f : a_angleWidth < PI - 1e-4f ? a_angleWidth :
+		                                                                                PI - 1e-4f;
 
 		const float sinX2 = sinf(0.5f * angle1);
 		const float sinY2 = sinf(0.5f * angle2);
@@ -1228,8 +1269,7 @@ namespace Scaleform
 	{
 		Locker locker(_lock);
 
-		for (auto& entry : _actorInfoBarMap)
-		{
+		for (auto& entry : _actorInfoBarMap) {
 			auto& widget = entry.second;
 			if (widget->_object.IsDisplayObject()) {
 				RE::GFxValue arg;
@@ -1303,7 +1343,7 @@ namespace Scaleform
 		if (_bSubtitleYSaved) {
 			auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
 			hud.get()->uiMovie->SetVariable("HUDMovieBaseInstance.SubtitleTextHolder._y", _savedSubtitleY);
-		}		
+		}
 
 		if (_bCompassAlphaSaved) {
 			auto hud = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
@@ -1340,7 +1380,7 @@ namespace Scaleform
 
 					hud->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", 0.f);
 					_bVanillaEnemyHealthHidden = true;
-				}				
+				}
 			}
 		} else if (_bVanillaEnemyHealthHidden) {
 			auto hudPtr = RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME);
@@ -1349,7 +1389,7 @@ namespace Scaleform
 				if (hud && hud->uiMovie) {
 					hud->uiMovie->SetVariable("HUDMovieBaseInstance.EnemyHealth_mc._alpha", _savedVanillaEnemyHealthAlpha);
 					_bVanillaEnemyHealthHidden = false;
-				}				
+				}
 			}
 		}
 
@@ -1371,10 +1411,10 @@ namespace Scaleform
 		// actor info bars
 		for (auto widget_it = _actorInfoBarMap.begin(), next_widget_it = widget_it; widget_it != _actorInfoBarMap.end(); widget_it = next_widget_it) {
 			++next_widget_it;
-		
+
 			auto& entry = *widget_it;
 			auto& widget = entry.second;
-				
+
 			widget->ProcessDelegates();
 			widget->Update(a_deltaTime);
 
@@ -1387,14 +1427,14 @@ namespace Scaleform
 			// add to depths array
 			AddToDepthsArray(widget, static_cast<uint32_t>(TrueHUDWidgetType::kInfoBar), depthArray);
 		}
-		
+
 		// boss bars
 		for (auto widget_it = _bossInfoBarMap.begin(), next_widget_it = widget_it; widget_it != _bossInfoBarMap.end(); widget_it = next_widget_it) {
 			++next_widget_it;
-		
+
 			auto& entry = *widget_it;
 			auto& widget = entry.second;
-				
+
 			widget->ProcessDelegates();
 			widget->Update(a_deltaTime);
 
@@ -1407,7 +1447,7 @@ namespace Scaleform
 			// add to depths array
 			AddToDepthsArray(widget, static_cast<uint32_t>(TrueHUDWidgetType::kBossBar), depthArray);
 		}
-		
+
 		if (_shoutIndicator) {
 			_shoutIndicator->ProcessDelegates();
 			_shoutIndicator->Update(a_deltaTime);
@@ -1649,8 +1689,7 @@ namespace Scaleform
 
 	void TrueHUDMenu::UpdateBossQueue()
 	{
-		if (_bossQueue.size() > 0 && _bossInfoBarMap.size() < Settings::uBossBarMaxCount)
-		{
+		if (_bossQueue.size() > 0 && _bossInfoBarMap.size() < Settings::uBossBarMaxCount) {
 			auto boss = _bossQueue.begin();
 
 			bool bSuccess = AddBossInfoBarWidget(*boss);
@@ -1737,7 +1776,6 @@ namespace Scaleform
 		_view->Invoke("lineTo", nullptr, argsEndPos, 2);
 
 		_view->Invoke("endFill", nullptr, nullptr, 0);
-
 	}
 
 	// https://www.oreilly.com/library/view/actionscript-cookbook/0596004907/ch04s06.html

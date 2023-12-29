@@ -325,6 +325,12 @@ namespace Messaging
 		hudHandler->DrawCapsule(a_vertexA, a_vertexB, a_radius, a_duration, a_color, a_thickness);
 	}
 
+	void TrueHUDInterface::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness) noexcept
+	{
+		auto hudHandler = HUDHandler::GetSingleton();
+		hudHandler->DrawArc(a_origin, a_radius, a_startRadian, a_endRadian, a_matrix, a_segments, a_duration, a_color, a_thickness);
+	}
+
 	bool TrueHUDInterface::HasInfoBar(RE::ActorHandle a_actorHandle, bool a_bFloatingOnly /*= false*/) const noexcept
 	{
 		auto hudHandler = HUDHandler::GetSingleton();

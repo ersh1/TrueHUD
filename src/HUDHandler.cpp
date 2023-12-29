@@ -25,8 +25,8 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::TESCombatEvent* a_eve
 {
 	using WidgetRemovalMode = TRUEHUD_API::WidgetRemovalMode;
 
-	bool bInfoBarsEnabled = Settings::bEnableActorInfoBars && 
-							(Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever ||
+	bool bInfoBarsEnabled = Settings::bEnableActorInfoBars &&
+	                        (Settings::uInfoBarDisplayHostiles > InfoBarsDisplayMode::kNever ||
 								Settings::uInfoBarDisplayTeammates > InfoBarsDisplayMode::kNever ||
 								Settings::uInfoBarDisplayOthers > InfoBarsDisplayMode::kNever);
 
@@ -300,7 +300,6 @@ RE::GPtr<Scaleform::TrueHUDMenu> HUDHandler::GetTrueHUDMenu()
 
 void HUDHandler::Update()
 {
-
 }
 
 RE::ObjectRefHandle HUDHandler::GetTarget() const
@@ -638,6 +637,13 @@ void HUDHandler::DrawHalfCircle(const RE::NiPoint3& a_center, const RE::NiPoint3
 	});
 }
 
+void HUDHandler::DrawArc(const RE::NiPoint3& a_origin, float a_radius, float a_startRadian, float a_endRadian, const RE::NiMatrix3& a_matrix, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
+{
+	AddHUDTask([a_origin, a_radius, a_startRadian, a_endRadian, a_matrix, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
+		a_menu.DrawArc(a_origin, a_radius, a_startRadian, a_endRadian, a_matrix, a_segments, a_duration, a_color, a_thickness);
+	});
+}
+
 void HUDHandler::DrawSphere(const RE::NiPoint3& a_origin, float a_radius, uint32_t a_segments, float a_duration, uint32_t a_color, float a_thickness)
 {
 	AddHUDTask([a_origin, a_radius, a_segments, a_duration, a_color, a_thickness](TrueHUDMenu& a_menu) {
@@ -763,7 +769,6 @@ void HUDHandler::OnSettingsUpdated()
 
 void HUDHandler::Initialize()
 {
-	
 }
 
 void HUDHandler::Process(TrueHUDMenu& a_menu, float a_deltaTime)
