@@ -35,10 +35,38 @@ namespace NND_API
 	class IVNND1
 	{
 	public:
-		virtual std::string_view GetName(RE::ActorHandle, NameContext) noexcept = 0;
-		virtual std::string_view GetName(const RE::Actor*, NameContext) noexcept = 0;
-		virtual void RevealName(RE::ActorHandle) noexcept = 0;
-		virtual void RevealName(RE::Actor*) noexcept = 0;
+
+		/// <summary>
+		/// Retrieves a generated name for given actor appropriate in specified context.
+		/// Note that NND might not have a name for the actor. In this case an empty string will be returned.
+		/// </summary>
+		/// <param name="actor">Actor for which the name should be retrieved.</param>
+		/// <param name="context">Context in which the name needs to be displayed. Depending on context name might either shortened or formatted differently.</param>
+		/// <returns>A name generated for the actor. If actor does not support generated names an empty string will be returned instead.</returns>
+		virtual std::string_view GetName(RE::ActorHandle actor, NameContext context) noexcept = 0;
+
+		/// <summary>
+		/// Retrieves a generated name for given actor appropriate in specified context.
+		/// Note that NND might not have a name for the actor. In this case an empty string will be returned.
+		/// </summary>
+		/// <param name="actor">Actor for which the name should be retrieved.</param>
+		/// <param name="context">Context in which the name needs to be displayed. Depending on context name might either shortened or formatted differently.</param>
+		/// <returns>A name generated for the actor. If actor does not support generated names an empty string will be returned instead.</returns>
+		virtual std::string_view GetName(const RE::Actor* actor, NameContext context) noexcept = 0;
+
+		/// <summary>
+		/// Reveals a real name of the given actor to the player. If player already knows actor's name this method does nothing.
+		/// This method can be used to programatically introduce an actor to the player.
+		/// </summary>
+		/// <param name="actor">Actor whose name should be revealed.</param>
+		virtual void RevealName(RE::ActorHandle actor) noexcept = 0;
+		
+		/// <summary>
+		/// Reveals a real name of the given actor to the player. If player already knows actor's name this method does nothing.
+		/// This method can be used to programatically introduce an actor to the player.
+		/// </summary>
+		/// <param name="actor">Actor whose name should be revealed.</param>
+		virtual void RevealName(RE::Actor* actor) noexcept = 0;
 	};
 
 	typedef void* (*_RequestPluginAPI)(const InterfaceVersion interfaceVersion);
