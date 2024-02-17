@@ -4,7 +4,9 @@
 const char* NPCNameProvider::GetName(RE::Actor* actor) const
 {
 	if (NND) {
-		return NND->GetName(actor, NND_API::NameContext::kEnemyHUD).data();
+		if (auto name = NND->GetName(actor, NND_API::NameContext::kEnemyHUD); !name.empty()) {
+			return name.data();
+		}
 	}
 
 	return actor->GetDisplayFullName();
