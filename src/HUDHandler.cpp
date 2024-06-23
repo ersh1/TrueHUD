@@ -237,7 +237,7 @@ HUDHandler::EventResult HUDHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a
 
 	// Hide the widgets when a menu is open
 	if (const auto controlMap = RE::ControlMap::GetSingleton()) {
-		const auto& priorityStack = controlMap->GetRuntimeData().contextPriorityStack;
+		const auto& priorityStack = controlMap->contextPriorityStack;
 		if (priorityStack.empty()) {
 			HUDHandler::GetSingleton()->SetMenuVisibilityMode(MenuVisibilityMode::kHidden);
 		} else if (priorityStack.back() == ContextID::kGameplay ||
