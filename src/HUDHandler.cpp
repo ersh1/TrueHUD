@@ -350,7 +350,7 @@ void HUDHandler::AddActorInfoBar(RE::ObjectRefHandle a_actorHandle)
 		return;
 	}
 
-	if (a_actorHandle.native_handle() == 0x100000) {
+	if (a_actorHandle.native_handle() == 0x100000 && !extAddedActorInfoBars.contains(a_actorHandle)) {
 		return;
 	}
 
@@ -363,7 +363,7 @@ void HUDHandler::AddActorInfoBar(RE::ObjectRefHandle a_actorHandle)
 
 void HUDHandler::RemoveActorInfoBar(RE::ObjectRefHandle a_actorHandle, WidgetRemovalMode a_removalMode /*= kImmediate*/)
 {
-	if (a_actorHandle) {
+	if (a_actorHandle && !extAddedActorInfoBars.contains(a_actorHandle)) {
 		AddHUDTask([a_actorHandle, a_removalMode](TrueHUDMenu& a_menu) {
 			a_menu.RemoveActorInfoBar(a_actorHandle, a_removalMode);
 		});
@@ -381,7 +381,7 @@ void HUDHandler::AddBossInfoBar(RE::ObjectRefHandle a_actorHandle)
 		return;
 	}
 
-	if (a_actorHandle.native_handle() == 0x100000) {
+	if (a_actorHandle.native_handle() == 0x100000 && !extAddedActorInfoBars.contains(a_actorHandle)) {
 		return;
 	}
 
@@ -394,7 +394,7 @@ void HUDHandler::AddBossInfoBar(RE::ObjectRefHandle a_actorHandle)
 
 void HUDHandler::RemoveBossInfoBar(RE::ObjectRefHandle a_actorHandle, WidgetRemovalMode a_removalMode /*= kImmediate*/)
 {
-	if (a_actorHandle) {
+	if (a_actorHandle && !extAddedActorInfoBars.contains(a_actorHandle)) {
 		AddHUDTask([a_actorHandle, a_removalMode](TrueHUDMenu& a_menu) {
 			a_menu.RemoveBossInfoBar(a_actorHandle, a_removalMode);
 		});
@@ -692,6 +692,7 @@ void HUDHandler::RemoveAllWidgets()
 	AddHUDTask([](TrueHUDMenu& a_menu) {
 		a_menu.RemoveAllWidgets();
 	});
+	extAddedActorInfoBars.clear();
 }
 
 bool HUDHandler::CheckActorForBoss(RE::ObjectRefHandle a_refHandle)

@@ -117,6 +117,7 @@ public:
 	SpecialResourceCallback GetMaxSpecial = nullptr;
 	bool bSpecialMode;
 	bool bDisplaySpecialForPlayer;
+	std::set<RE::ObjectRefHandle, HandleComp<RE::TESObjectREFR>> extAddedActorInfoBars;
 
 protected:
 	friend class TrueHUDMenu;

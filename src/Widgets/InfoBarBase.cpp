@@ -117,6 +117,8 @@ namespace Scaleform
 		auto softTargetHandle = hudMenu->GetSoftTarget();
 
 		bool bIsTeammate = Utils::IsPlayerTeammateOrSummon(actor);
+		bool bIsPlayer = actor == playerCharacter;
+		bool bExtManaged = HUDHandler::GetSingleton()->extAddedActorInfoBars.contains(actor->GetHandle());
 
 		TargetType targetType;
 		if (targetHandle && _refHandle == targetHandle) {
@@ -125,7 +127,7 @@ namespace Scaleform
 			targetType = kTarget;
 		} else if (actor->IsHostileToActor(playerCharacter)) {
 			targetType = kEnemy;
-		} else if (bIsTeammate) {
+		} else if (bIsTeammate || bIsPlayer) {
 			targetType = kTeammate;
 		} else {
 			targetType = kOther;
@@ -153,9 +155,9 @@ namespace Scaleform
 
 			const auto shouldBarBeDisplayed = [&]() {
 				if (_barType == BarType::kBossInfoBar) {
-					return !bIsTeammate && actor->IsInCombat() && actor->IsHostileToActor(playerCharacter);
+					return (bExtManaged) || (!bIsTeammate && actor->IsInCombat() && actor->IsHostileToActor(playerCharacter));
 				} else if (_barType == BarType::kActorInfoBar) {
-					if (targetType > kTarget && !actor->IsInCombat()) {
+					if (!bExtManaged && targetType > kTarget && !actor->IsInCombat()) {
 						return false;
 					}
 					switch (targetType) {
@@ -181,7 +183,7 @@ namespace Scaleform
 					SetWidgetState(WidgetStateMode::kHide);
 				} else {
 					bool r8 = false;
-					bool bHasLOS = targetType == kTarget ? true : playerCharacter->HasLineOfSight(actor, r8);
+					bool bHasLOS = targetType == kTarget || bExtManaged || bIsPlayer ? true : playerCharacter->HasLineOfSight(actor, r8);
 					bool bVisible = bHasLOS && !(actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kInvisibility) > 0);
 					if (bVisible) {
 						SetWidgetState(WidgetStateMode::kShow);
@@ -197,7 +199,7 @@ namespace Scaleform
 
 		uint32_t levelColor = Settings::uDefaultColor;
 		uint32_t outlineColor = Settings::uDefaultColorOutline;
-		if (bIsTeammate) {
+		if (bIsTeammate || bIsPlayer) {
 			levelColor = Settings::uTeammateColor;
 			outlineColor = Settings::uTeammateColorOutline;
 		} else if (playerLevel - targetLevel > Settings::uInfoBarLevelThreshold) {

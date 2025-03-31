@@ -24,6 +24,15 @@ namespace std
 	};
 }
 
+template <class T>
+struct HandleComp
+{
+	bool operator()(const RE::BSPointerHandle<T>& a_lhs, const RE::BSPointerHandle<T>& a_rhs) const
+	{
+		return std::hash<RE::BSPointerHandle<T>>()(a_lhs) < std::hash<RE::BSPointerHandle<T>>()(a_rhs);
+	}
+};
+
 namespace Scaleform
 {
 	class DebugLine

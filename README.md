@@ -8,7 +8,7 @@
 * [Visual Studio Community 2022](https://visualstudio.microsoft.com/)
 	* Desktop development with C++
 * [CommonLibSSE-NG](https://github.com/alandtse/CommonLibVR/tree/ng)
-	* Add the environment variable `CommonLibSSEPath_NG` with the value as the path to the folder containing CommonLibSSE-NG
+	* Add this as as an environment variable `CommonLibSSEPath`
 
 ## User Requirements
 * [Address Library for SKSE](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
@@ -17,6 +17,7 @@
 ```
 git clone https://github.com/ersh1/TrueHUD/
 cd TrueHUD
+# pull commonlib /extern to override the path settings
 git submodule init
 git submodule update
 

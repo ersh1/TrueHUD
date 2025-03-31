@@ -83,6 +83,7 @@ namespace Messaging
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
 		if (hudHandler) {
+			hudHandler->extAddedActorInfoBars.insert(a_actorHandle);
 			hudHandler->AddActorInfoBar(a_actorHandle);
 		}
 	}
@@ -91,6 +92,7 @@ namespace Messaging
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
 		if (hudHandler) {
+			hudHandler->extAddedActorInfoBars.erase(a_actorHandle);
 			hudHandler->RemoveActorInfoBar(a_actorHandle, static_cast<TRUEHUD_API::WidgetRemovalMode>(a_removalMode));
 		}
 	}
@@ -99,6 +101,7 @@ namespace Messaging
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
 		if (hudHandler) {
+			hudHandler->extAddedActorInfoBars.insert(a_actorHandle);
 			hudHandler->AddBossInfoBar(a_actorHandle);
 		}
 	}
@@ -107,6 +110,7 @@ namespace Messaging
 	{
 		auto hudHandler = HUDHandler::GetSingleton();
 		if (hudHandler) {
+			hudHandler->extAddedActorInfoBars.erase(a_actorHandle);
 			hudHandler->RemoveBossInfoBar(a_actorHandle, static_cast<TRUEHUD_API::WidgetRemovalMode>(a_removalMode));
 		}
 	}
