@@ -106,7 +106,10 @@ target_include_directories(
 		"${SOURCE_DIR}"
 )
 
-set(SKSE_SUPPORT_XBYAK ON)
+# Allow callers to override Xbyak support; default to ON if not explicitly set
+if(NOT DEFINED SKSE_SUPPORT_XBYAK)
+	set(SKSE_SUPPORT_XBYAK ON)
+endif()
 add_subdirectory("$ENV{CommonLibSSEPath_NG}" CommonLibSSE EXCLUDE_FROM_ALL)
 
 find_package(xbyak REQUIRED CONFIG)
@@ -142,6 +145,7 @@ if("${COPY_OUTPUT}")
 	add_custom_command(
 		TARGET "${PROJECT_NAME}"
 		POST_BUILD
+		COMMAND "${CMAKE_COMMAND}" -E make_directory "${CompiledPluginsPath}/SKSE/Plugins"
 		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${CompiledPluginsPath}/SKSE/Plugins/"
 		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${CompiledPluginsPath}/SKSE/Plugins/"
 		VERBATIM

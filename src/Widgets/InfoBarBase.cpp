@@ -25,6 +25,7 @@ namespace Scaleform
 			if (_widgetState == kPendingHide || _widgetState == kPendingRemoval || _widgetState == kHidden) {
 				_widgetState = kActive;
 			}
+			break;
 		case WidgetStateMode::kShow:
 			if (_widgetState == kPendingHide || _widgetState == kHidden) {
 				_widgetState = kActive;

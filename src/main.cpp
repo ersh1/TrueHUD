@@ -4,6 +4,7 @@
 #include "HUDHandler.h"
 #include "Scaleform/Scaleform.h"
 #include "NPCNameProvider.h"
+#include <cstdlib>
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
@@ -84,14 +85,18 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	return true;
 }
 
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
-	SKSE::PluginVersionData v;
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() noexcept {
+	SKSE::PluginVersionData v{};
 
 	v.PluginVersion(Plugin::VERSION);
 	v.PluginName(Plugin::NAME);
 	v.AuthorName("Ersh");
 	v.UsesAddressLibrary(true);
-	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
+	// Explicit runtime compatibility list so SKSE will load on 1.5.97 and common AE versions
+	v.CompatibleVersions({
+		SKSE::RUNTIME_SSE_1_5_97,
+		SKSE::RUNTIME_SSE_LATEST
+	});
 	v.HasNoStructUse(true);
 
 	return v;
@@ -99,10 +104,15 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-#ifndef NDEBUG
+// Optional debugger wait: enable only if TRUEHUD_WAIT_FOR_DEBUGGER is set in the environment.
+if (std::getenv("TRUEHUD_WAIT_FOR_DEBUGGER")) {
 	while (!IsDebuggerPresent()) { Sleep(100); }
-#endif
+}
+	// REL::Module::reset() is only available in CommonLibSSE-NG when ENABLE_COMMONLIBSSE_TESTING is defined.
+	// It is not present in standard builds, so guard it for compatibility.
+	#ifdef ENABLE_COMMONLIBSSE_TESTING
 	REL::Module::reset();  // Clib-NG bug workaround
+	#endif
 	
 	InitializeLog();
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
@@ -115,7 +125,13 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	Hooks::Install();
+	if (std::getenv("TRUEHUD_DISABLE_HOOKS")) {
+		logger::warn("TRUEHUD_DISABLE_HOOKS set; skipping Hooks::Install()");
+	} else {
+		logger::info("Installing hooks...");
+		Hooks::Install();
+		logger::info("Hooks installed.");
+	}
 	Papyrus::Register();
 
 	return true;

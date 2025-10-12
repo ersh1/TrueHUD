@@ -421,5 +421,9 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake,visualstudio
 
-/build
+# Project-specific ignores
+/build*/
+/vcpkg_installed/
+/CMakeUserPresets.json
+/CMakeUserPresets.json.user
 *.swf

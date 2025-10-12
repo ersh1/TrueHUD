@@ -134,10 +134,17 @@ namespace TRUEHUD_API
 
 		void ProcessDelegates()
 		{
-			while (!_taskQueue.empty()) {
-				auto& task = _taskQueue.front();
-				task();
-				_taskQueue.pop();
+			std::queue<WidgetTask> local;
+			{
+				Locker locker(_lock);
+				std::swap(local, _taskQueue);
+			}
+			while (!local.empty()) {
+				auto t = std::move(local.front());
+				local.pop();
+				if (t) {
+					t();
+				}
 			}
 		}
 

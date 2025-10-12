@@ -3,9 +3,18 @@
 #include <queue>
 
 #include "TrueHUDAPI.h"
+#if defined(TRUEHUD_TESTING)
+namespace Scaleform {
+	class TrueHUDMenu {
+	public:
+		enum class MenuVisibilityMode : uint8_t { kHidden, kPartial, kVisible };
+	};
+}
+#else
 #include "Widgets/ActorInfoBar.h"
 #include "Widgets/BossInfoBar.h"
 #include "Scaleform/TrueHUDMenu.h"
+#endif
 
 class HUDHandler :
 	public RE::BSTEventSink<RE::TESCombatEvent>,
@@ -14,8 +23,10 @@ class HUDHandler :
 	public RE::BSTEventSink<RE::TESHitEvent>,
 	public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 {
-private:
+public:
 	using EventResult = RE::BSEventNotifyControl;
+
+private:
 	using TrueHUDMenu = Scaleform::TrueHUDMenu;
 	using BarColorType = ::TRUEHUD_API::BarColorType;
 	using WidgetRemovalMode = TRUEHUD_API::WidgetRemovalMode;
@@ -25,19 +36,25 @@ private:
 	using MenuVisibilityMode = TrueHUDMenu::MenuVisibilityMode;
 
 public:
+#if defined(TRUEHUD_TESTING)
+	static HUDHandler* GetSingleton() { return nullptr; }
+#else
 	static HUDHandler* GetSingleton()
 	{
 		static HUDHandler singleton;
 		return std::addressof(singleton);
 	}
+#endif
 
 	static void Register();
 
+#ifndef TRUEHUD_TESTING
 	virtual EventResult ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) override;
 	virtual EventResult ProcessEvent(const RE::TESDeathEvent* a_event, RE::BSTEventSource<RE::TESDeathEvent>* a_eventSource) override;
 	virtual EventResult ProcessEvent(const RE::TESEnterBleedoutEvent* a_event, RE::BSTEventSource<RE::TESEnterBleedoutEvent>* a_eventSource) override;
 	virtual EventResult ProcessEvent(const RE::TESHitEvent* a_event, RE::BSTEventSource<RE::TESHitEvent>* a_eventSource) override;
 	virtual EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
+#endif
 
 	void OpenTrueHUDMenu();
 	void CloseTrueHUDMenu();
@@ -128,9 +145,34 @@ private:
 	using Lock = std::recursive_mutex;
 	using Locker = std::lock_guard<Lock>;
 
+#ifdef TRUEHUD_TESTING
+public:
+#endif
+	template <class Invoker>
+	void DrainAndProcessTasks(Invoker&& invoker)
+	{
+		std::queue<HUDTask> localTasks;
+		{
+			Locker locker(_lock);
+			std::swap(localTasks, _taskQueue);
+		}
+		while (!localTasks.empty()) {
+			auto task = std::move(localTasks.front());
+			localTasks.pop();
+			invoker(task);
+		}
+	}
+
+#ifndef TRUEHUD_TESTING
 	HUDHandler();
-	HUDHandler(const HUDHandler&) = delete;
-	HUDHandler(HUDHandler&&) = delete;
+#else
+public:
+	// Test-only defaulted constructor so unit tests don't require the out-of-line definition from HUDHandler.cpp
+	HUDHandler() = default;
+private:
+#endif
+HUDHandler(const HUDHandler&) = delete;
+HUDHandler(HUDHandler&&) = delete;
 
 	~HUDHandler() = default;
 
@@ -154,6 +196,11 @@ private:
 		float damage = 0.f;
 		float timeElapsed = 0.f;
 	};
+#if defined(TRUEHUD_TESTING)
+	using TestObjectHandle = std::uintptr_t;
+	std::unordered_map<TestObjectHandle, DamageStack> _stackingDamage;
+#else
 	std::unordered_map<RE::ObjectRefHandle, DamageStack> _stackingDamage;
+#endif
 	constexpr static float _stackingPeriodDuration = 0.5f;
 };

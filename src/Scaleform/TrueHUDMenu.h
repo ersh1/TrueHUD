@@ -10,6 +10,7 @@
 #include "Offsets.h"
 #include <chrono>
 #include <unordered_set>
+#include <vector>
 
 namespace std
 {
@@ -318,6 +319,7 @@ namespace Scaleform
 		void AddToDepthsArray(std::shared_ptr<TRUEHUD_API::WidgetBase> a_widget, uint32_t a_widgetType, RE::GFxValue& a_array);
 
 		void UpdateDebugDraw(float a_deltaTime);
+		void FlushPendingAdds();
 
 		void DrawLine2D(RE::NiPoint2& a_start, RE::NiPoint2& a_end, uint32_t a_color, float a_thickness);
 		void DrawPoint2D(RE::NiPoint2& a_position, uint32_t a_color, float a_size);
@@ -361,6 +363,11 @@ namespace Scaleform
 
 		std::unordered_map<RE::ObjectRefHandle, std::unordered_map<BarType, BarColorOverride>> _colorOverrides;
 		std::unordered_set<RE::ObjectRefHandle> _pendingColorChanges;
+
+		// Re-entrancy guard and pending-add queues to avoid mutating containers during Update()
+		bool _isUpdatingWidgets = false;
+		std::unordered_set<RE::ObjectRefHandle> _pendingActorInfoBarAdds;
+		std::unordered_set<RE::ObjectRefHandle> _pendingBossInfoBarAdds;
 
 		std::vector<std::unique_ptr<DebugLine>> _linesToDraw;
 		std::vector<std::unique_ptr<DebugPoint>> _pointsToDraw;

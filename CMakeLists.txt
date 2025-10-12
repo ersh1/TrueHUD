@@ -18,17 +18,24 @@ macro(set_from_environment VARIABLE)
 endmacro()
 
 set_from_environment(CompiledPluginsPath)
+# Provide a default deploy path if not specified via environment
 if(NOT DEFINED CompiledPluginsPath)
-	message(FATAL_ERROR "CompiledPluginsPath is not set")
+	set(CompiledPluginsPath "${CMAKE_BINARY_DIR}/_deploy")
 endif()
 
 option(COPY_OUTPUT "Copy the output of build operations to the game directory" ON)
 option(ENABLE_SKYRIM_SE "Enable support for Skyrim SE in the dynamic runtime feature." ON)
 option(ENABLE_SKYRIM_AE "Enable support for Skyrim AE in the dynamic runtime feature." ON)
 option(ENABLE_SKYRIM_VR "Enable support for Skyrim VR in the dynamic runtime feature." OFF)
-set(BUILD_TESTS OFF)
+option(BUILD_TESTS "Build unit tests" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 add_subdirectory(src)
+
+if(BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+endif()
+
 include(cmake/packaging.cmake)

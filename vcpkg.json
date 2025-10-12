@@ -8,6 +8,7 @@
     "rsm-binary-io",
     "simpleini",
     "spdlog",
-    "xbyak"
+    "xbyak",
+    "catch2"
   ]
 }

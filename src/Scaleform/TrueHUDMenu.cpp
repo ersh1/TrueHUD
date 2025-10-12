@@ -68,8 +68,17 @@ namespace Scaleform
 	}
 
 	bool TrueHUDMenu::AddActorInfoBar(RE::ObjectRefHandle a_actorHandle)
-	{	
+	{
 		using WidgetStateMode = InfoBarBase::WidgetStateMode;
+
+		// Defer additions during Update() to avoid re-entrant mutations of _actorInfoBarMap
+		if (_isUpdatingWidgets) {
+			Locker locker(_lock);
+			if (!HasActorInfoBar(a_actorHandle) && !HasBossInfoBar(a_actorHandle)) {
+				_pendingActorInfoBarAdds.emplace(a_actorHandle);
+			}
+			return false;
+		}
 
 		if (_view && !HasActorInfoBar(a_actorHandle) && !HasBossInfoBar(a_actorHandle)) {
 			Locker locker(_lock);
@@ -147,6 +156,15 @@ namespace Scaleform
 	{
 		using WidgetStateMode = InfoBarBase::WidgetStateMode;
 
+		// Defer additions during Update() to avoid re-entrant mutations of _bossInfoBarMap
+		if (_isUpdatingWidgets) {
+			Locker locker(_lock);
+			if (!HasBossInfoBar(a_actorHandle)) {
+				_pendingBossInfoBarAdds.emplace(a_actorHandle);
+			}
+			return false;
+		}
+
 		if (_view && !HasBossInfoBar(a_actorHandle)) {
 			if (_bossInfoBarMap.size() < Settings::uBossBarMaxCount) {
 				// Add a boss bar
@@ -188,7 +206,7 @@ namespace Scaleform
 						}
 						_bossInfoBarMap.erase(it);
 						RefreshBossBarIndexes(index);
-						UpdateBossQueue();
+						// Note: UpdateBossQueue() moved to end of Update() to avoid re-entrant insertion
 						break;
 					}
 
@@ -1368,6 +1386,9 @@ namespace Scaleform
 		RE::GFxValue depthArray;
 		_view->CreateArray(&depthArray);
 
+		// Guard: prevent re-entrant additions while iterating widget containers
+		_isUpdatingWidgets = true;
+
 		// actor info bars
 		for (auto widget_it = _actorInfoBarMap.begin(), next_widget_it = widget_it; widget_it != _actorInfoBarMap.end(); widget_it = next_widget_it) {
 			++next_widget_it;
@@ -1407,6 +1428,9 @@ namespace Scaleform
 			// add to depths array
 			AddToDepthsArray(widget, static_cast<uint32_t>(TrueHUDWidgetType::kBossBar), depthArray);
 		}
+
+		// Process boss queue after iteration completes to avoid re-entrant insertion
+		UpdateBossQueue();
 		
 		if (_shoutIndicator) {
 			_shoutIndicator->ProcessDelegates();
@@ -1480,6 +1504,10 @@ namespace Scaleform
 
 		// sort widget depths
 		_view->Invoke("_root.TrueHUD.SortDepths", nullptr, &depthArray, 1);
+
+		// Flush any adds that were requested while updating widgets
+		_isUpdatingWidgets = false;
+		FlushPendingAdds();
 
 		UpdateColors();
 
@@ -1678,6 +1706,26 @@ namespace Scaleform
 		data.SetMember("widgetType", widgetType);
 
 		a_array.PushBack(data);
+	}
+
+	void TrueHUDMenu::FlushPendingAdds()
+	{
+		// Move pending sets under lock, then process without holding the lock
+		std::unordered_set<RE::ObjectRefHandle> actorAdds;
+		std::unordered_set<RE::ObjectRefHandle> bossAdds;
+		{
+			Locker locker(_lock);
+			actorAdds.swap(_pendingActorInfoBarAdds);
+			bossAdds.swap(_pendingBossInfoBarAdds);
+		}
+
+		for (auto& h : actorAdds) {
+			// Re-check to avoid duplicates; AddActorInfoBar will guard anyway
+			AddActorInfoBar(h);
+		}
+		for (auto& h : bossAdds) {
+			AddBossInfoBar(h);
+		}
 	}
 
 	void TrueHUDMenu::UpdateDebugDraw(float a_deltaTime)

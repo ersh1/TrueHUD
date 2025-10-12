@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ master, main, develop, fix-* ]
+
+jobs:
+  build-and-test-windows:
+    runs-on: windows-latest
+    env:
+      BUILD_DIR: ${{ github.workspace }}\build
+      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+      COMMONLIBSSE_NG_DIR: ${{ github.workspace }}\deps\CommonLibSSE-NG
+      VCPKG_ROOT: ${{ github.workspace }}\deps\vcpkg
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\\vcpkg-bincache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check CMake version
+        shell: pwsh
+        run: cmake --version
+
+      - name: Remove existing vcpkg directory
+        shell: pwsh
+        run: |
+          if (Test-Path "deps/vcpkg") { Remove-Item -Recurse -Force "deps/vcpkg" }
+
+      - name: Ensure vcpkg binary cache directory exists
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
+
+      - name: Cache vcpkg installed packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}
+
+
+      - name: Install vcpkg (classic)
+        shell: pwsh
+        run: |
+          git clone --depth=1 https://github.com/microsoft/vcpkg "${{ env.VCPKG_ROOT }}"
+          & "${{ env.VCPKG_ROOT }}\\bootstrap-vcpkg.bat"
+
+      - name: Clone CommonLibSSE-NG
+        shell: pwsh
+        run: |
+          git clone --depth=1 https://github.com/CharmedBaryon/CommonLibSSE-NG "${{ env.COMMONLIBSSE_NG_DIR }}"
+
+      - name: Configure (CMake, VS 2022, x64)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ env.BUILD_DIR }}" | Out-Null
+          $env:CommonLibSSEPath_NG = "${{ env.COMMONLIBSSE_NG_DIR }}"
+          $env:CompiledPluginsPath = "${{ env.ARTIFACTS_DIR }}"
+          cmake -S . -B "${{ env.BUILD_DIR }}" `
+            -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_TESTS=ON
+
+      - name: Build (Release)
+        shell: pwsh
+        run: |
+          $env:CommonLibSSEPath_NG = "${{ env.COMMONLIBSSE_NG_DIR }}"
+          $env:CompiledPluginsPath = "${{ env.ARTIFACTS_DIR }}"
+          cmake --build "${{ env.BUILD_DIR }}" --config Release --parallel
+
+      - name: Run tests (Release)
+        shell: pwsh
+        run: |
+          ctest --test-dir "${{ env.BUILD_DIR }}" -C Release --output-on-failure
+
+      - name: Verify artifacts
+        shell: pwsh
+        run: |
+          Write-Host "Verifying Release build artifacts..."
+          Get-ChildItem -Path "${{ env.ARTIFACTS_DIR }}" -Recurse -File | Select-Object FullName, Length, LastWriteTime | Format-Table -AutoSize
+          if (-not (Test-Path "${{ env.ARTIFACTS_DIR }}\SKSE\Plugins\TrueHUD.dll")) {
+            Write-Error "TrueHUD.dll not found in artifacts directory!"
+            exit 1
+          }
+          $dllSize = (Get-Item "${{ env.ARTIFACTS_DIR }}\SKSE\Plugins\TrueHUD.dll").Length
+          Write-Host "TrueHUD.dll size: $dllSize bytes"
+          if ($dllSize -gt 2000000) {
+            Write-Warning "DLL size is larger than expected for Release build (>2MB). Verify this is not a Debug build."
+          }
+
+      - name: Upload artifacts (DLL/PDB)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: truehud-artifacts
+          path: |
+            ${{ env.ARTIFACTS_DIR }}/**/*
